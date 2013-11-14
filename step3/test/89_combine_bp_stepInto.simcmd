@@ -1,0 +1,9 @@
+#Commande a lancer dans le script 89_combine_bp_stepInto
+
+lp procedure.o
+bp 0x28
+run
+si
+si
+si
+si

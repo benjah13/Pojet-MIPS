@@ -1,0 +1,4 @@
+#Commande a lancer dans le script 76_er_error2
+
+bp 0x4
+er 0x4 1

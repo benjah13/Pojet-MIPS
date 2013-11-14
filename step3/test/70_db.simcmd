@@ -1,0 +1,5 @@
+#Commande a lancer dans le script 70_db
+
+bp 0x4
+bp 0x8
+db

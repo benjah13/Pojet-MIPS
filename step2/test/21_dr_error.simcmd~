@@ -1,0 +1,4 @@
+# ouverture du fichier sans extension
+
+dr $4 $v0
+dr $at

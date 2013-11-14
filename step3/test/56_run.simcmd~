@@ -1,0 +1,3 @@
+#Commande a lancer dans le script 56_run
+
+lp exempleELF.o run 0xa

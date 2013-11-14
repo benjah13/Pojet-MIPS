@@ -1,0 +1,4 @@
+# trop grand nombre d'arguments
+
+lr $5 0xaf
+lr $10 0xff 0x10

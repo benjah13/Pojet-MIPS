@@ -1,0 +1,4 @@
+# valeur a inserer dans le registre non hexadécimal
+
+lr $5 af
+lr $10 va

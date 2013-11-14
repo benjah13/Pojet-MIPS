@@ -1,0 +1,4 @@
+# valeur a inserer dans le registre trop grande
+
+lr $5 0xaf
+lr $10 0xffffffffffff

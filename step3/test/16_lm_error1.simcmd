@@ -1,0 +1,4 @@
+# valeur a inserer de la memoire trop grande ou pas allouée a notre programme
+
+lm 0x60 0x10
+lm 0x1d000 0x10

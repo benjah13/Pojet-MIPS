@@ -1,0 +1,759 @@
+#include <stdlib.h>
+#include <stdint.h> 
+#include <stdio.h> 
+#include <string.h> 
+#include <libelf.h> 
+#include "libelf.h" 
+#include <math.h>
+
+/* la librairie readline */ 
+#include <readline/readline.h> 
+#include <readline/history.h>
+
+/* macros de DEBUG_MSG fournies , etc */ 
+#include "global.h"
+#include "mipself.h"
+#include "structure.h"
+#include "libelf.h" 
+#include "shellStep3.h"
+#include "notify.h" 
+#include "fonctions.h" 
+#include "constantes.h" 
+#include "fonctionsStep1.h" 
+#include "testsStep1.h" 
+#include "fonctionsStep2.h" 
+#include "elfimport.h"
+#include "cmdSearch.h"
+#include "execution.h"
+#include "man.h"
+
+
+/********************************************************************************************
+Fonctions annexes **************************************************************************/
+
+/* fonction getword - renvoie l'indice du tableau de fonctions */
+int getword(unsigned int addr, mips* arch){
+
+	/* recalage des adresses */
+	addr=addr-addr%4;
+
+	/* Déclaration des variables */
+	BYTE* bits;
+	int nb_int=0;
+
+	/* Chargement d'une instruction */
+	bits=&(arch->segment[TEXT].data[arch->segment[TEXT].startAddress+addr]);
+	
+	/* Inversion little endian->big endian */
+	char str[8];
+	sprintf(str,"%02x",bits[0]);
+	sprintf(str+2,"%02x",bits[1]); 
+	sprintf(str+4,"%02x",bits[2]); 
+	sprintf(str+6,"%02x",bits[3]);
+
+	/* nb_int = string d'instruction */
+	nb_int=strtol(str,NULL,16);
+
+	return nb_int;
+
+	}
+
+/* entrée d'une valeur dans un registre */
+void setRegister(uint32_t indice, uint32_t valeur, mips* arch){
+
+	arch->reg[indice].val=valeur;
+	
+	}
+
+/* gestion de l'overflow */
+void SignalException(char* error,mips* arch){
+
+	WARNING_MSG("%s",error);
+	
+	}
+
+/********************************************************************************************
+Fonctions d'exécution des instructions *****************************************************/
+
+void execute_add(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0,rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+
+	/* exécution de l'instruction */
+	uint64_t temp=0;
+	temp=(uint64_t)arch->reg[rs].val+(uint64_t)arch->reg[rt].val;
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tADD\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* test de l'overflow */
+	if(temp!=(uint32_t)temp){
+		SignalException("Integer Overflow",arch);
+		/* allumage du bit 11 du registre 35 */
+		setRegister(35,arch->reg[35].val|0x400,arch);
+		}
+
+	/* écriture dans le registre destination */
+	else{setRegister(rd,(int32_t)temp,arch);}
+
+	}
+
+void execute_addi(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0,rt=0;
+	int32_t immediate=0;
+	immediate=getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+
+	/* exécution de l'instruction */
+	uint64_t temp=0;
+	temp=(uint64_t)arch->reg[rs].val+(uint32_t)immediate;
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tADDI\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rt].mnemo,arch->reg[rs].mnemo,(short)immediate);
+
+	/* test de l'overflow */
+	if(temp!=(uint32_t)temp){
+		SignalException("Interger Overflow",arch);
+		/* allumage du bit 11 du registre 35 */
+		setRegister(35,arch->reg[35].val|0x400,arch);
+		}
+
+	/* écriture dans le registre destination */
+	else{setRegister(rt,(uint32_t)temp,arch);}
+
+	}
+
+void execute_and(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0,rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tAND\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+	setRegister(rd,(arch->reg[rs].val)&(arch->reg[rt].val),arch);
+
+	}
+
+void execute_beq(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0,rt=0;
+	int32_t offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+	
+	/* exécution de l'instruction */
+	offset=offset<<2;
+
+	/* affichage instruction */		
+	fprintf(stdout,"0x%08x:\tBEQ\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset);
+
+	if(arch->reg[rs].val==arch->reg[rt].val){
+		arch->reg[32].val=arch->reg[32].val+offset;
+		}
+
+	}
+
+void execute_bgtz(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0;
+	int32_t offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rs=getbits(instr,21,25);
+
+	/* exécution de l'instruction */
+	offset=offset<<2;
+
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tBGTZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
+
+	if(arch->reg[rs].val>0){
+		setRegister(32,arch->reg[32].val+offset-4,arch);
+		}
+
+	}
+
+void execute_blez(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0;
+	int32_t offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rs=getbits(instr,21,25);
+
+	/* exécution de l'instruction */
+	offset=offset<<2;
+
+	/* affichage instruction */		
+	fprintf(stdout,"0x%08x:\tBLEZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
+
+	if(arch->reg[rs].val<=0){
+		setRegister(32,arch->reg[32].val+offset-4,arch);
+		}
+
+	}
+
+void execute_bne(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rt=0,rs=0;
+	int32_t offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+	
+	/* exécution de l'instruction */
+	offset=offset<<2;
+
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tBNE\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset);
+
+	if(arch->reg[rs].val!=arch->reg[rt].val){
+		setRegister(32,arch->reg[32].val+offset-4,arch);
+		}
+	}
+
+void execute_div(int word, mips* arch){
+
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0,rt=0;
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tDIV\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */	
+	setRegister(34,arch->reg[rs].val/arch->reg[rt].val,arch);
+	setRegister(33,arch->reg[rs].val%arch->reg[rt].val,arch);
+
+	}
+
+void execute_j(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	int target=0;
+	target=getbits(instr,0,25);
+	
+	/* exécution de l'instruction */
+	target=target<<2;
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tJ\t%d\n",arch->reg[32].val,target);
+
+	setRegister(32,arch->reg[32].val-(arch->reg[32].val&0xFFFFFFF)+target,arch);
+
+	}
+
+void execute_jal(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	int32_t target=0;
+	target=getbits(instr,0,25);
+
+	/* exécution de l'instruction */
+	arch->reg[31].val=arch->reg[32].val+4;
+	target=target<<2;
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tJAL\t%d\n",arch->reg[32].val,target);
+	setRegister(32,arch->reg[32].val-(arch->reg[32].val&0xFFFFFFF)+target,arch);
+
+	}
+
+void execute_jr(int word, mips* arch){
+	
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	int32_t rs=0;
+	rs=getbits(instr,21,25);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tJR\t$%d\n",arch->reg[32].val,rs);
+
+	/* exécution de l'instruction */
+	setRegister(32,arch->reg[rs].val,arch);
+
+	}
+
+void execute_lui(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rt=0;
+	int immediate=0;
+	immediate=getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tLUI\t$%s\t%d\n",arch->reg[32].val,arch->reg[rt].mnemo,immediate);
+
+	/* exécution de l'instruction */
+	immediate=immediate<<16;
+	setRegister(rt,immediate,arch);
+
+	}
+
+void execute_lw(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rt=0,base=0;
+	int offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	base=getbits(instr,21,25);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tLW\t$%s\t%d(%d)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,base);
+
+	/* exécution de l'instruction */
+	if(arch->reg[base].val+offset!=0%4){
+		SignalException("Address Error",arch);
+		}
+	else{
+		int tm=0;
+		unsigned int addr_in_block;
+		tm=test_memoire(arch,arch->reg[base].val+offset,&addr_in_block);
+	
+		switch(tm){
+		
+		case -1:
+		WARNING_MSG("This address is not allocated for the simulator");
+		break;
+	
+		case BSS:
+		setRegister(rt,arch->segment[BSS].data[addr_in_block],arch);
+		break;
+
+		case TEXT:
+		setRegister(rt,arch->segment[TEXT].data[addr_in_block],arch);
+		break;
+		
+		case DATA:
+		setRegister(rt,arch->segment[DATA].data[addr_in_block],arch);
+		break;
+
+			}
+
+		}
+
+	}
+
+void execute_mfhi(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0;
+	rd=getbits(instr,11,15);
+	
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tMFHI\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[33].val,arch);
+
+	}
+
+void execute_mflo(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0;
+	rd=getbits(instr,11,15);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tMFLO\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[34].val,arch);
+
+	}
+
+void execute_mult(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rs=0,rt=0;
+	rs=getbits(instr,21,25);
+	rt=getbits(instr,16,20);
+
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tMULT\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+
+	/* cast des arguments sur 64 bits */	
+	int64_t arg1=0;
+	arg1=(int64_t)arch->reg[rs].val;
+	int64_t arg2=0;
+	arg2=(int64_t)arch->reg[rt].val;
+	
+	/* exécution du produit */
+	int64_t prod=0;
+	prod=arg1*arg2;
+	
+	/* calcul de lo et hi */
+	int64_t prodlo64=0;
+	int64_t prodhi64=0;
+	prodlo64=prod&0x0000FFFF;
+	prodhi64=(prod&0xFFFF0000)>>16;
+
+	int32_t prodlo=(int32_t)prodlo64;
+	int32_t prodhi=(int32_t)prodhi64;
+
+	setRegister(34,prodlo,arch);
+	setRegister(33,prodhi,arch);
+
+	}
+
+void execute_or(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0, rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rs=getbits(instr,21,25);
+	rt=getbits(instr,16,20);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tOR\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[rs].val|arch->reg[rt].val,arch);
+
+	}
+
+void execute_rotr(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0, sa=0,rt=0;
+	rd=getbits(instr,21,25);
+	rt=getbits(instr,16,20);
+	sa=getbits(instr,6,10);
+	
+	sa=sa%32;
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tROTR\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rt].mnemo,sa);
+
+	/* exécution de l'instruction */
+	int templtr=0;
+	int temprtl=0;
+
+	templtr=arch->reg[rt].val&(0xFFFFFFFF<<sa);
+	temprtl=arch->reg[rt].val&(0xFFFFFFFF>>(32-sa));
+	
+	setRegister(rd,templtr+temprtl,arch);
+
+	}
+
+void execute_sll(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0,sa=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	sa=getbits(instr,6,10);
+	
+	sa=sa%32;
+
+	/* test NOP */
+	if(rd==0 && rt==0 && sa==0){fprintf(stdout,"0x%08x:\tNOP\n",arch->reg[32].val);}
+
+	else{
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tSLL\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rt].mnemo,sa);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[rt].val<<sa,arch);
+
+	}
+
+	}
+
+void execute_slt(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0,rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tSLT\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+	if(arch->reg[rs].val<arch->reg[rt].val){setRegister(rd,1,arch);}
+	else{setRegister(rd,0,arch);}
+
+	}
+
+void execute_srl(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rd=0,sa=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	sa=getbits(instr,6,10);
+	
+	sa=sa%32;
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tSRL\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rt].mnemo,sa);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[rt].val>>sa,arch);
+
+	}
+
+void execute_sub(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	uint32_t rd=0,rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tSUB\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+	uint64_t temp=0;
+	temp=(uint64_t)arch->reg[rs].val-(uint64_t)arch->reg[rt].val;
+	
+	/* test de l'overflow */
+	if(temp!=(uint32_t)temp){
+		SignalException("Integer Overflow",arch);
+		setRegister(35,arch->reg[35].val|0x400,arch);
+		}
+
+	else{setRegister(rd,(uint32_t)temp,arch);}
+
+	}
+
+void execute_sw(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	unsigned int rt=0,base=0;
+	int offset=0;
+	offset=(int16_t)getbits(instr,0,15);
+	rt=getbits(instr,16,20);
+	base=getbits(instr,21,25);
+
+	/* affichage instruction */	
+	fprintf(stdout,"0x%08x:\tSW\t$%s\t%d(%d)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,base);
+
+	/* exécution de l'instruction */
+	if(arch->reg[base].val+offset!=0%4){
+		SignalException("Address Error",arch);
+		}
+	else{
+		int tm=0;
+		unsigned int addr_in_block;
+		tm=test_memoire(arch,arch->reg[base].val+offset,&addr_in_block);
+	
+		switch(tm){
+		
+		case -1:
+		WARNING_MSG("This address is not allocated for the simulator");
+		break;
+	
+		case BSS:
+		arch->segment[BSS].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		break;
+
+		case TEXT:
+		arch->segment[TEXT].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		break;
+		
+		case DATA:
+		arch->segment[DATA].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		break;
+
+			}
+
+		}
+
+	}
+
+void execute_syscall(int word, mips* arch){
+
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tSYSCALL\n",arch->reg[32].val);
+	
+	/* exécution de l'instruction */
+	SignalException("SystemCall",arch);
+	
+	}
+
+void execute_xor(int word, mips* arch){
+
+	/* chargement de l'instruction */
+	int instr=0;
+	instr=getword(arch->reg[32].val,arch);
+
+	/* décomposition du word */
+	uint32_t rd=0,rs=0,rt=0;
+	rd=getbits(instr,11,15);
+	rt=getbits(instr,16,20);
+	rs=getbits(instr,21,25);
+	
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tXOR\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
+
+	/* exécution de l'instruction */
+	setRegister(rd,arch->reg[rt].val|arch->reg[rs].val,arch);
+
+	}
+
+void no_execute(int word, mips* arch){
+
+	fprintf(stdout,"0x%08x:\tUnknown instruction\n",arch->reg[32].val);
+
+	}
+
+/********************************************************************************************
+Initialisation du tableau de fonctions *****************************************************/
+
+void init_functionTab(mips* arch,executor executor_t[128]){
+
+	/* initialisation à no_execute : unknown instruction */	
+	int i=0;
+	for(i=0;i<128;i++){
+		executor_t[i]=no_execute;
+		}
+
+	/* type R 
+	Zone prévue pour les types R : 0~63 
+	Indice = function */
+	executor_t[0]=execute_sll;
+	executor_t[2]=execute_srl;
+	executor_t[3]=execute_rotr;
+	executor_t[8]=execute_jr;
+	executor_t[16]=execute_mfhi;
+	executor_t[18]=execute_mflo;
+	executor_t[24]=execute_mult;
+	executor_t[26]=execute_div;
+	executor_t[32]=execute_add;
+	executor_t[36]=execute_and;
+	executor_t[37]=execute_or;
+	executor_t[38]=execute_xor;
+	executor_t[42]=execute_slt;
+
+	/* type IJ
+	Zone prévue pour les types IJ : 64~127
+	Indice = 64 + opcode */
+	executor_t[66]=execute_j;
+	executor_t[67]=execute_jal;
+	executor_t[68]=execute_beq;
+	executor_t[69]=execute_bne;
+	executor_t[70]=execute_blez;
+	executor_t[71]=execute_bgtz;
+	executor_t[72]=execute_addi;
+	executor_t[79]=execute_lui;
+	executor_t[99]=execute_lw;
+	executor_t[107]=execute_sw;
+
+	}

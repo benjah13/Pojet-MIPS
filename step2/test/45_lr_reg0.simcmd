@@ -1,0 +1,3 @@
+#Commande a lancer dans le script 45_lr_reg0
+
+lr $0 0xff

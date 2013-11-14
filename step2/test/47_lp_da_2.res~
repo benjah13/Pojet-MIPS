@@ -1,0 +1,36 @@
+Table des symboles .text .data .bss .reginfo .pdr X Tab 
+------ Fichier ELF "./res/mult.o" : sections lues lors du chargement ------
+
+ 00000000:	21 08 00 11 
+ 00000004:	21 08 00 12 
+
+
+<X>
+ 00001000:	00 00 0a bc 
+
+
+<Tab>
+ 00002000:	00 00 00 00 
+ 00002004:	00 00 00 00 
+ 00002008:	00 00 00 00 
+
+Command to execute : ADDI $8, $8, 17
+
+Command to execute : ADDI $8, $8, 18
+
+Command to execute : NOP 
+
+Command to execute : BEQ $0, $0, 0
+
+Command to execute : SRL $1, $0, 10
+
+Command to execute : SW $20, 28855(4)
+
+Command to execute : SW $31, 65535(31)
+
+Command to execute : BEQ $0, $0, 0
+
+Command to execute : SRL $1, $0, 10
+
+Command to execute : SW $20, 28855(4)
+

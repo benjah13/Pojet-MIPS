@@ -1,0 +1,5 @@
+# test dm ok
+
+dm a0
+dm a0:50
+dm ff~fff

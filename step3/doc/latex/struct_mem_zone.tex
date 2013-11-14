@@ -1,0 +1,120 @@
+\hypertarget{struct_mem_zone}{\section{\-Mem\-Zone \-Struct \-Reference}
+\label{struct_mem_zone}\index{\-Mem\-Zone@{\-Mem\-Zone}}
+}
+
+
+\-Type de données zone ! \-Definition des informations d'une section \-E\-L\-F \-: (nom, données, taille des données, adresse mémoire de la section, ...) + acces aux differentes sections du fichier \-E\-L\-F. \-Cette structure de données est completement dépendante de la librairie \-E\-L\-F.  
+
+
+
+
+{\ttfamily \#include $<$mipself.\-h$>$}
+
+\subsection*{\-Data \-Fields}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{libelf_8h_a6a36da1ee04a67efd7fafb18948b3ec1}{\-Elf\-\_\-\-Scn} $\ast$ \hyperlink{struct_mem_zone_a55c4ddbe81d8195c776ab5eb43d4b430}{scn}
+\item 
+char $\ast$ \hyperlink{struct_mem_zone_a5ac083a645d964373f022d03df4849c8}{name}
+\item 
+\-Elf32\-\_\-\-Half \hyperlink{struct_mem_zone_a129a0ce32a1aa17dafbf00cfecfb2a9c}{index}
+\item 
+\-Elf32\-\_\-\-Half \hyperlink{struct_mem_zone_ac88b495652795d7e786ae9c807df8470}{type}
+\item 
+\-Elf32\-\_\-\-Word \hyperlink{struct_mem_zone_a6cdb7ee15e451582ee7eb23fea2939a1}{size}
+\item 
+\-Elf32\-\_\-\-Word \hyperlink{struct_mem_zone_a22217808f0c5242a891133c1a57472f8}{mem\-\_\-start}
+\item 
+\hyperlink{libelf_8h_a6a36da1ee04a67efd7fafb18948b3ec1}{\-Elf\-\_\-\-Scn} $\ast$ \hyperlink{struct_mem_zone_a791a8b1cd288f7aed2dc3cdd77e54e52}{rel\-\_\-scn}
+\item 
+char $\ast$ \hyperlink{struct_mem_zone_a3620bf59a872d1f7c7ff4f372a5dcc91}{rel\-\_\-name}
+\item 
+unsigned char $\ast$ \hyperlink{struct_mem_zone_ac24cea2bfcc927fd29bc74d1086707d8}{data}
+\item 
+\hyperlink{struct_section_e_l_f}{\-Section\-E\-L\-F} $\ast$ \hyperlink{struct_mem_zone_a989932f35bc189b0b859b9293fde129c}{export\-Section}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Type de données zone ! \-Definition des informations d'une section \-E\-L\-F \-: (nom, données, taille des données, adresse mémoire de la section, ...) + acces aux differentes sections du fichier \-E\-L\-F. \-Cette structure de données est completement dépendante de la librairie \-E\-L\-F. 
+
+\-Definition at line 49 of file mipself.\-h.
+
+
+
+\subsection{\-Field \-Documentation}
+\hypertarget{struct_mem_zone_ac24cea2bfcc927fd29bc74d1086707d8}{\index{\-Mem\-Zone@{\-Mem\-Zone}!data@{data}}
+\index{data@{data}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{data}]{\setlength{\rightskip}{0pt plus 5cm}unsigned char$\ast$ {\bf data}}}\label{struct_mem_zone_ac24cea2bfcc927fd29bc74d1086707d8}
+
+
+\-Definition at line 61 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a989932f35bc189b0b859b9293fde129c}{\index{\-Mem\-Zone@{\-Mem\-Zone}!export\-Section@{export\-Section}}
+\index{export\-Section@{export\-Section}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{export\-Section}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Section\-E\-L\-F}$\ast$ {\bf export\-Section}}}\label{struct_mem_zone_a989932f35bc189b0b859b9293fde129c}
+
+
+\-Definition at line 63 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a129a0ce32a1aa17dafbf00cfecfb2a9c}{\index{\-Mem\-Zone@{\-Mem\-Zone}!index@{index}}
+\index{index@{index}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{index}]{\setlength{\rightskip}{0pt plus 5cm}\-Elf32\-\_\-\-Half {\bf index}}}\label{struct_mem_zone_a129a0ce32a1aa17dafbf00cfecfb2a9c}
+
+
+\-Definition at line 54 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a22217808f0c5242a891133c1a57472f8}{\index{\-Mem\-Zone@{\-Mem\-Zone}!mem\-\_\-start@{mem\-\_\-start}}
+\index{mem\-\_\-start@{mem\-\_\-start}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{mem\-\_\-start}]{\setlength{\rightskip}{0pt plus 5cm}\-Elf32\-\_\-\-Word {\bf mem\-\_\-start}}}\label{struct_mem_zone_a22217808f0c5242a891133c1a57472f8}
+
+
+\-Definition at line 57 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a5ac083a645d964373f022d03df4849c8}{\index{\-Mem\-Zone@{\-Mem\-Zone}!name@{name}}
+\index{name@{name}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf name}}}\label{struct_mem_zone_a5ac083a645d964373f022d03df4849c8}
+
+
+\-Definition at line 53 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a3620bf59a872d1f7c7ff4f372a5dcc91}{\index{\-Mem\-Zone@{\-Mem\-Zone}!rel\-\_\-name@{rel\-\_\-name}}
+\index{rel\-\_\-name@{rel\-\_\-name}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{rel\-\_\-name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf rel\-\_\-name}}}\label{struct_mem_zone_a3620bf59a872d1f7c7ff4f372a5dcc91}
+
+
+\-Definition at line 60 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a791a8b1cd288f7aed2dc3cdd77e54e52}{\index{\-Mem\-Zone@{\-Mem\-Zone}!rel\-\_\-scn@{rel\-\_\-scn}}
+\index{rel\-\_\-scn@{rel\-\_\-scn}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{rel\-\_\-scn}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Elf\-\_\-\-Scn}$\ast$ {\bf rel\-\_\-scn}}}\label{struct_mem_zone_a791a8b1cd288f7aed2dc3cdd77e54e52}
+
+
+\-Definition at line 58 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a55c4ddbe81d8195c776ab5eb43d4b430}{\index{\-Mem\-Zone@{\-Mem\-Zone}!scn@{scn}}
+\index{scn@{scn}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{scn}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Elf\-\_\-\-Scn}$\ast$ {\bf scn}}}\label{struct_mem_zone_a55c4ddbe81d8195c776ab5eb43d4b430}
+
+
+\-Definition at line 51 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_a6cdb7ee15e451582ee7eb23fea2939a1}{\index{\-Mem\-Zone@{\-Mem\-Zone}!size@{size}}
+\index{size@{size}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}\-Elf32\-\_\-\-Word {\bf size}}}\label{struct_mem_zone_a6cdb7ee15e451582ee7eb23fea2939a1}
+
+
+\-Definition at line 56 of file mipself.\-h.
+
+\hypertarget{struct_mem_zone_ac88b495652795d7e786ae9c807df8470}{\index{\-Mem\-Zone@{\-Mem\-Zone}!type@{type}}
+\index{type@{type}!MemZone@{\-Mem\-Zone}}
+\subsubsection[{type}]{\setlength{\rightskip}{0pt plus 5cm}\-Elf32\-\_\-\-Half {\bf type}}}\label{struct_mem_zone_ac88b495652795d7e786ae9c807df8470}
+
+
+\-Definition at line 55 of file mipself.\-h.
+
+
+
+\-The documentation for this struct was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/include/\hyperlink{mipself_8h}{mipself.\-h}\end{DoxyCompactItemize}

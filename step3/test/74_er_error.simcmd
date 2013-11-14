@@ -1,0 +1,4 @@
+#Commande a lancer dans le script 74_er_error
+
+bp 0x4 
+er 0x8

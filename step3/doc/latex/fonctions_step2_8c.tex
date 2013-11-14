@@ -1,0 +1,100 @@
+\hypertarget{fonctions_step2_8c}{\section{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions\-Step2.c \-File \-Reference}
+\label{fonctions_step2_8c}\index{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions\-Step2.\-c@{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions\-Step2.\-c}}
+}
+{\ttfamily \#include $<$stdlib.\-h$>$}\*
+{\ttfamily \#include $<$stdint.\-h$>$}\*
+{\ttfamily \#include $<$stdio.\-h$>$}\*
+{\ttfamily \#include $<$string.\-h$>$}\*
+{\ttfamily \#include $<$libelf.\-h$>$}\*
+{\ttfamily \#include $<$math.\-h$>$}\*
+{\ttfamily \#include $<$readline/readline.\-h$>$}\*
+{\ttfamily \#include $<$readline/history.\-h$>$}\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}mipself.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}notify.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}structure.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}constantes.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}tests\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step2.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}elfimport.\-h\char`\"{}}\*
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+unsigned int \hyperlink{fonctions_step2_8c_aaa1a21f434904310e0ed0ae8be059122}{getbits} (unsigned int val, unsigned int start, unsigned int stop)
+\item 
+int \hyperlink{fonctions_step2_8c_a14c9bf29b6101d4624265f12f058247a}{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da} (char $\ast$input, \hyperlink{structmips}{mips} $\ast$arch)
+\item 
+int \hyperlink{fonctions_step2_8c_a057aa4cf63d05d9b63f00fd7f634e6ae}{execute\-\_\-cmd\-\_\-da} (unsigned int addr, unsigned int nbr\-\_\-instr, \hyperlink{structmips}{mips} $\ast$arch)
+\item 
+int \hyperlink{fonctions_step2_8c_ac718d181442fb7f6acba52c4a47556bf}{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp} (char $\ast$input, \hyperlink{structmips}{mips} $\ast$arch)
+\item 
+int \hyperlink{fonctions_step2_8c_a47e3cd348245abe6daf8dba4eb08dcca}{execute\-\_\-cmd\-\_\-lp} (\-F\-I\-L\-E $\ast$program, char $\ast$nom\-\_\-fichier, \hyperlink{structmips}{mips} $\ast$arch)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Function \-Documentation}
+\hypertarget{fonctions_step2_8c_a057aa4cf63d05d9b63f00fd7f634e6ae}{\index{fonctions\-Step2.\-c@{fonctions\-Step2.\-c}!execute\-\_\-cmd\-\_\-da@{execute\-\_\-cmd\-\_\-da}}
+\index{execute\-\_\-cmd\-\_\-da@{execute\-\_\-cmd\-\_\-da}!fonctionsStep2.c@{fonctions\-Step2.\-c}}
+\subsubsection[{execute\-\_\-cmd\-\_\-da}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf execute\-\_\-cmd\-\_\-da} (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{addr, }
+\item[{unsigned int}]{nbr\-\_\-instr, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_step2_8c_a057aa4cf63d05d9b63f00fd7f634e6ae}
+
+
+\-Definition at line 141 of file fonctions\-Step2.\-c.
+
+\hypertarget{fonctions_step2_8c_a47e3cd348245abe6daf8dba4eb08dcca}{\index{fonctions\-Step2.\-c@{fonctions\-Step2.\-c}!execute\-\_\-cmd\-\_\-lp@{execute\-\_\-cmd\-\_\-lp}}
+\index{execute\-\_\-cmd\-\_\-lp@{execute\-\_\-cmd\-\_\-lp}!fonctionsStep2.c@{fonctions\-Step2.\-c}}
+\subsubsection[{execute\-\_\-cmd\-\_\-lp}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf execute\-\_\-cmd\-\_\-lp} (
+\begin{DoxyParamCaption}
+\item[{\-F\-I\-L\-E $\ast$}]{program, }
+\item[{char $\ast$}]{nom\-\_\-fichier, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_step2_8c_a47e3cd348245abe6daf8dba4eb08dcca}
+
+
+\-Definition at line 339 of file fonctions\-Step2.\-c.
+
+\hypertarget{fonctions_step2_8c_aaa1a21f434904310e0ed0ae8be059122}{\index{fonctions\-Step2.\-c@{fonctions\-Step2.\-c}!getbits@{getbits}}
+\index{getbits@{getbits}!fonctionsStep2.c@{fonctions\-Step2.\-c}}
+\subsubsection[{getbits}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf getbits} (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{val, }
+\item[{unsigned int}]{start, }
+\item[{unsigned int}]{stop}
+\end{DoxyParamCaption}
+)}}\label{fonctions_step2_8c_aaa1a21f434904310e0ed0ae8be059122}
+
+
+\-Definition at line 26 of file fonctions\-Step2.\-c.
+
+\hypertarget{fonctions_step2_8c_a14c9bf29b6101d4624265f12f058247a}{\index{fonctions\-Step2.\-c@{fonctions\-Step2.\-c}!parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da}}
+\index{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da}!fonctionsStep2.c@{fonctions\-Step2.\-c}}
+\subsubsection[{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-da} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{input, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_step2_8c_a14c9bf29b6101d4624265f12f058247a}
+
+
+\-Definition at line 55 of file fonctions\-Step2.\-c.
+
+\hypertarget{fonctions_step2_8c_ac718d181442fb7f6acba52c4a47556bf}{\index{fonctions\-Step2.\-c@{fonctions\-Step2.\-c}!parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp}}
+\index{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp}!fonctionsStep2.c@{fonctions\-Step2.\-c}}
+\subsubsection[{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-lp} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{input, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_step2_8c_ac718d181442fb7f6acba52c4a47556bf}
+
+
+\-Definition at line 291 of file fonctions\-Step2.\-c.
+

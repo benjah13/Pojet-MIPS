@@ -1,0 +1,5 @@
+# Test de fonctionnement de DM
+
+dm 10
+dm 10:2
+dm 10~12

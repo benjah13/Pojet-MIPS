@@ -1,0 +1,871 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+/* la librairie readline */
+#include <readline/readline.h>
+#include <readline/history.h>
+
+
+/* macros de DEBUG_MSG fournies , etc */
+#include "notify.h"
+#include "constantes.h"
+#include "structure.h"
+#include "fonctions.h"
+#include "fonctionsStep1.h"
+#include "testsStep1.h"
+
+/* INITIALISATION DU MIPS
+   LOAD MEMORY
+   DISPLAY MEMORY
+   LOAD REGISTER
+   DISPLAY REGISTER
+   DISPLAY ASSEMBLER */
+
+
+
+
+/***********************************************/
+/***** FONCTION D INITIALISATION DU MIPS *****/
+/********************************************/
+
+void init_mips(mips* arch){
+
+	init_segment(&arch->segment[DATA], DATA);
+	init_segment(&arch->segment[TEXT], TEXT);
+	init_segment(&arch->segment[BSS], BSS);
+
+	int i;
+	for(i=0;i<35;i++){arch->reg[i]=0;}
+}
+
+void init_segment(segment* seg, int type){
+
+	int i;
+	switch(type){
+
+	case DATA:
+	seg->start_addr=400;
+	seg->size=100;
+	seg->mem=malloc((seg->size)*sizeof(*seg->mem));
+	
+	for(i=0;i<seg->size;i++){
+		seg->mem[i]=250;
+		}
+	break;
+
+	case TEXT:
+	seg->start_addr=200;
+	seg->size=100;
+	seg->mem=malloc((seg->size)*sizeof(*seg->mem));
+	
+	for(i=0;i<seg->size;i++){
+		seg->mem[i]=180;
+		}
+	break;
+
+	case BSS:
+	seg->start_addr=0;
+	seg->size=100;
+	seg->mem=malloc((seg->size)*sizeof(*seg->mem));
+	
+	for(i=0;i<seg->size;i++){
+		seg->mem[i]=255;
+		}
+	break;
+
+	default:
+	break;
+	}
+}
+
+
+
+/**********************************/
+/***** FONCTIONS LOAD MEMORY *****/
+/*********************************/
+
+
+/* EXECUTE LOAD MEMORY */
+int execute_cmd_lm(unsigned int adr, unsigned int val, mips* arch){
+
+	unsigned int addr_in_block;
+	
+	switch(test_memoire(arch, adr, &addr_in_block)){
+
+	case -1:
+	fprintf(stdout,"This address isn't in an allocated segment\n");
+	break;
+
+	case BSS:
+	arch->segment[BSS].mem[addr_in_block] = val;
+	fprintf(stdout,"The value %x has been loaded in the address 0x%x\n", val,adr);
+	break;
+
+	case DATA:
+	arch->segment[DATA].mem[addr_in_block] = val;
+	fprintf(stdout,"The value %x has been loaded in the address 0x%x\n", val,adr);
+	break;
+
+	case TEXT:
+	arch->segment[TEXT].mem[addr_in_block] = val;
+	fprintf(stdout,"The value %x has been loaded in the address 0x%x\n", val,adr);
+	break;
+	}
+	return CMD_OK_RETURN_VALUE;
+}
+
+/* PARSE AND EXECUTE LOAD MEMORY */
+int parse_and_execute_cmd_lm(char* paramsStr, mips* arch){
+
+	char *separators=" ";
+	char *pch;
+	int cpt=0,i=1;
+	pch=strtok(paramsStr,separators);
+	
+	/* Test de la presence d'arguments*/
+	if(pch==NULL){
+	 fprintf(stdout,"Too few arguments.\n");
+	return 2;
+	}
+	/* si l'adresse commence par '0x' on décale le pointeur de 2 caractères */
+	if(pch[0]=='0' && pch[1]=='x'){pch=pch+2;}
+	unsigned int c1, c2;
+	unsigned int addr_in_block;
+
+	while(pch!=NULL){
+	
+	DEBUG_MSG("Parametres : %s", pch);
+
+	/* compteur incrémenté sur l'argument lu après la commande lm */
+	switch(cpt){
+
+	case 0 :
+	/* test adresse */
+	c1=(unsigned int)strtol(pch,NULL,16);
+	if(test_memoire(arch,c1,&addr_in_block)<0){
+		fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
+		return 2;
+		}
+		
+	/* teste si l'adresse est headécimal */
+	while (pch[i]!='\0'&& pch[i]!='\n'){
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in %s\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	cpt++;
+	pch=strtok(NULL,separators);
+
+
+	if(pch==NULL){
+	  fprintf(stdout,"Too few arguments\n");
+	  return 2;
+	}
+	break;
+
+	case 1 :
+	  i=0;
+	/* test valeur */
+	while (pch[i]!='\0'&& pch[i]!='\n'){
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in %s\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	
+	c2=(unsigned int)strtol(pch,NULL,16);
+	
+	/* test argument valeur compris entre 0 et 255 */
+	if(test_valeur(c2)<0){
+		fprintf(stdout,"Error : The 2nd argument of lm isn't a valide value\n");
+		return 2;
+		}
+	/* test nombre d'arguments == 2 */	
+	pch=strtok(NULL,separators);
+	cpt=0;
+
+	if(pch!=NULL){
+		fprintf(stdout,"LM function only takes two arguments\n");
+		return 2;
+		}
+	break;
+	}	
+	}
+	/* execution de la commande */
+	return execute_cmd_lm(c1,c2,arch);
+}
+
+
+
+/**************************************/
+/***** FONCTIONS DISPLAY MEMORY ******/
+/*************************************/
+
+
+int execute_cmd_dm(int cas, unsigned int addr, unsigned int arg2, mips* arch){
+
+	unsigned int addr_in_block;
+	unsigned char valeur;
+	int cpt=1,j=0;
+  
+	switch(cas){
+ 
+	case 3:
+	/* une seule adresse mémoire */
+	switch(test_memoire(arch,addr,&addr_in_block)){
+			
+		case -1:
+		fprintf(stdout,"0x%x : 0\n", addr);
+		break;
+			      
+		case BSS:
+		valeur=arch->segment[BSS].mem[addr_in_block];
+		fprintf(stdout,"0x%x : %x\n", addr, valeur);
+		break;
+				      
+		case DATA:
+		valeur=arch->segment[DATA].mem[addr_in_block];
+		fprintf(stdout,"0x%x : %x\n", addr, valeur);
+		break;
+			
+		case TEXT:
+		valeur=arch->segment[TEXT].mem[addr_in_block];
+		fprintf(stdout,"0x%x : %x\n", addr, valeur);
+		break;
+		}
+		
+		break;
+
+	case 1:
+	/* séparateur ':' */
+		fprintf(stdout,"0x%x :", addr);
+						  
+		for(j=0;j<arg2;j++){
+		/* affichage de 16 éléments par ligne */
+		if(cpt==17){
+			fprintf(stdout,"\n0x%x :", addr+j);
+			cpt=1;
+		   	}
+		      
+		switch(test_memoire(arch,addr+j,&addr_in_block)){
+			
+		case -1:
+		fprintf(stdout," 0");
+		break;
+							
+		case BSS:
+		valeur=arch->segment[BSS].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+						
+		case DATA:
+		valeur=arch->segment[DATA].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+							
+		case TEXT:
+		valeur=arch->segment[TEXT].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+		}
+		
+		cpt++;
+		}
+	
+		fprintf(stdout,"\n");	
+	  	break;
+  
+  
+	case 2:
+	/* séparateur '~' */
+		fprintf(stdout,"0x%x :", addr+j);	
+
+		while(arg2+1-(addr+j)>0){
+	    	/* affichage de 16 éléments par ligne */
+		if(cpt==17){
+			fprintf(stdout,"\n0x%x :", addr+j);
+			cpt=1;
+		}
+
+		switch(test_memoire(arch,addr+j,&addr_in_block)){
+
+		case -1:
+		fprintf(stdout," 0");
+		break;
+							
+		case BSS:
+		valeur=arch->segment[BSS].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+							
+		case DATA:
+		valeur=arch->segment[DATA].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+							
+		case TEXT:
+		valeur=arch->segment[TEXT].mem[addr_in_block];
+		fprintf(stdout," %x", valeur);
+		break;
+		}
+			      
+		cpt++;	
+		j++;
+		}
+
+	fprintf(stdout,"\n");
+    	break; 
+
+	default:
+	break;
+	}
+ 
+	return CMD_OK_RETURN_VALUE;
+}
+
+
+/* PARSE AND EXECUTE DISPLAY MEMORY */
+int parse_and_execute_cmd_dm(char *paramsStr, mips* arch){
+
+	/* déclaration des variables */ 	
+	int i=0;
+	int cas=0;
+	char* pch;
+	char* separators="\n";
+	unsigned int arg1=0,arg2=0;
+	unsigned int addr_in_block;
+	
+	pch=strtok(paramsStr," ");
+	/* Test de la presence d'arguments*/
+	if(pch==NULL){
+	 fprintf(stdout,"Too few arguments.\n");
+	return 2;
+	}
+	
+	else if(pch[0]=='0' && pch[1]=='x'){
+		pch=pch+2;
+		}	
+	/* définition du cas et du séparateur */
+	if(strchr(pch,':')!=NULL){separators=":"; cas=1;}
+	else if(strchr(pch,'~')!=NULL){separators="~"; cas=2;}
+	else {cas=3;}
+
+	/* parsing de l'adresse */
+	pch=strtok(pch,separators);
+	/* test longueur de l'argument 1 */
+	if (strlen(pch)>8) { 
+		fprintf(stdout,"Argument too long\n");
+		return 2;
+		}
+	/* test base 16 */
+	while(i!=strlen(pch)){	
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	/* si l'adresse est bien en héxadécimal */
+	i=0;
+	arg1=(unsigned int)strtol(pch,NULL,16);
+	if(test_memoire(arch,arg1,&addr_in_block)<0){
+		fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
+		return 2;
+		}
+	pch=strtok(NULL,separators);
+	  	
+	switch(cas){
+	
+	case 0:
+	break;
+
+	case 1:
+	/* séparateur ':' */
+	while(pch[i]!='\0' && pch[i]!='\n'){	
+		if(!isdigit(pch[i])){
+			fprintf(stdout,"Invalid param : decimal number awaited in '%s'\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	arg2=(unsigned int)strtol(pch,NULL,10);
+	break;	
+	
+	case 2:
+	/* séparateur '~' */
+	if(pch[0]=='0' && pch[1]=='x'){
+		pch=pch+2;
+		}
+	
+	while(pch[i]!='\0' && pch[i]!='\n'){
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	arg2=(unsigned int)strtol(pch,NULL,16);
+	/* test arg2>arg1 */
+	if(arg2<arg1){
+		fprintf(stdout,"Invalid param : arg2 lower than arg1\n");
+		return 2;
+		}
+	break;
+
+	default:
+	break;
+	}
+
+	return execute_cmd_dm(cas,arg1,arg2,arch);
+}
+
+
+
+
+/***************************************/
+/***** FONCTIONS DISPLAY REGISTER *****/
+/**************************************/
+
+/* EXECUTE DISPLAY REGISTER */
+int execute_cmd_dr(int test_reg, mips* arch){
+
+	int i;
+	switch(test_reg){
+
+	case -3:
+	fprintf(stdout,"Unknown register\n");
+	return 2;
+	break;
+    
+	/* affichage de tous les registres */
+	case -2:
+	for(i=0;i<32;i++){fprintf(stdout,"REGISTRE  $%d = %x\n" ,i,(arch->reg[i]));} 
+	fprintf(stdout,"REGISTRE  $PC = %x\n",arch->reg[32]);
+	fprintf(stdout,"REGISTRE  $HI = %x\n",arch->reg[33]);
+	fprintf(stdout,"REGISTRE  $L0 = %x\n",arch->reg[34]);
+	break;
+
+	/* erreur de notation */ 
+	case -1:
+	fprintf(stdout,"A register should begin by $\n");
+	return 2;
+	break;  
+    
+	case 0:
+	fprintf(stdout,"REGISTRE  $0 = %x\n",arch->reg[0]);
+	break;
+    
+	case 1:
+	fprintf(stdout,"REGISTRE  $1 = %x\n",arch->reg[1]);
+	break;
+    
+	case 2:
+	fprintf(stdout,"REGISTRE  $2 = %x\n",arch->reg[2]);
+	break;
+    
+	case 3:
+	fprintf(stdout,"REGISTRE  $3 = %x\n",arch->reg[3]);
+	break;
+    
+	case 4:
+	fprintf(stdout,"REGISTRE  $4 = %x\n",arch->reg[4]);
+	break;
+    
+	case 5:
+	fprintf(stdout,"REGISTRE  $5 = %x\n",arch->reg[5]);
+	break;
+    
+	case 6:
+	fprintf(stdout,"REGISTRE  $6 = %x\n",arch->reg[6]);
+	break;
+    
+	case 7:
+	fprintf(stdout,"REGISTRE  $7 = %x\n",arch->reg[7]);;
+	break;
+    
+	case 8:
+	fprintf(stdout,"REGISTRE  $8 = %x\n",arch->reg[8]);
+	break;
+    
+	case 9:
+	fprintf(stdout,"REGISTRE  $9 = %x\n",arch->reg[9]);
+	break;
+    
+	case 10:
+	fprintf(stdout,"REGISTRE  $10 = %x\n",arch->reg[10]);
+	break;
+    
+	case 11:
+	fprintf(stdout,"REGISTRE  $11 = %x\n",arch->reg[11]);
+	break;
+    
+	case 12:
+	fprintf(stdout,"REGISTRE  $12 = %x\n",arch->reg[12]);
+	break;
+    
+	case 13:
+	fprintf(stdout,"REGISTRE  $13 = %x\n",arch->reg[13]);
+	break;
+    
+	case 14:
+	fprintf(stdout,"REGISTRE  $14 = %x\n",arch->reg[14]);
+	break;
+    
+	case 15:
+	fprintf(stdout,"REGISTRE  $15 = %x\n",arch->reg[15]);
+	break;
+    
+	case 16:
+	fprintf(stdout,"REGISTRE  $16 = %x\n",arch->reg[16]);
+	break;
+    
+	case 17:
+	fprintf(stdout,"REGISTRE  $17 = %x\n",arch->reg[17]);
+	break;
+
+	case 18:
+	fprintf(stdout,"REGISTRE  $18 = %x\n",arch->reg[18]);
+	break;
+    
+	case 19:
+	fprintf(stdout,"REGISTRE  $19 = %x\n",arch->reg[19]);
+	break;
+    
+	case 20:
+	fprintf(stdout,"REGISTRE  $20 = %x\n",arch->reg[20]);
+	break;
+    
+	case 21:
+	fprintf(stdout,"REGISTRE  $21 = %x\n",arch->reg[21]);
+    	break;
+    
+   	case 22:
+	fprintf(stdout,"REGISTRE  $22 = %x\n",arch->reg[22]);
+    	break;
+    
+  	case 23:
+	fprintf(stdout,"REGISTRE  $23 = %x\n",arch->reg[23]);
+    	break;
+    
+   	case 24:
+	fprintf(stdout,"REGISTRE  $24 = %x\n",arch->reg[24]);
+    	break;
+    
+   	case 25:
+	fprintf(stdout,"REGISTRE  $25 = %x\n",arch->reg[25]);
+    	break;
+    
+   	case 26:
+	fprintf(stdout,"REGISTRE  $26 = %x\n",arch->reg[26]);
+    	break;
+    
+   	case 27:
+	fprintf(stdout,"REGISTRE  $27 = %x\n",arch->reg[27]);
+    	break;
+    
+   	case 28:
+	fprintf(stdout,"REGISTRE  $28 = %x\n",arch->reg[28]);
+    	break;
+    
+   	case 29:
+	fprintf(stdout,"REGISTRE  $29 = %x\n",arch->reg[29]);
+    	break;
+    
+   	case 30:
+	fprintf(stdout,"REGISTRE  $30 = %x\n",arch->reg[30]);
+    	break;
+    
+   	case 31:
+	fprintf(stdout,"REGISTRE  $31 = %x\n",arch->reg[31]);
+    	break; 
+    
+	case 32:
+	fprintf(stdout,"REGISTRE  $PC = %x\n",arch->reg[32]);
+    	break;   	
+	
+	case 33:
+	fprintf(stdout,"REGISTRE  $HI = %x\n",arch->reg[33]);
+    	break;   	
+	
+	case 34:
+	fprintf(stdout,"REGISTRE  $L0 = %x\n",arch->reg[34]);
+    	break;
+	
+	default:
+    	break;
+	}
+
+	return CMD_OK_RETURN_VALUE;
+}
+
+/* PARSE AND EXECUTE DISPLAY REGISTER */
+int parse_and_execute_cmd_dr(char* input, mips* arch){
+  
+	char* pch;
+	char* separators=" ";
+ 	pch=strtok(input,separators);
+
+	/* appels successifs de la fonction execute_cmd_dr */
+	do {    
+		/* si l'éxécution aboutit à une erreur, on retourne 2 (code erreur) */  
+		if(execute_cmd_dr(test_registre(pch),arch)==2){
+			return 2;
+			}
+		pch=strtok(NULL, separators);
+      		}
+	
+	while(pch!=NULL);
+	
+	return CMD_OK_RETURN_VALUE;
+	}
+
+
+	
+	
+/************************************/
+/***** FONCTIONS LOAD REGISTER *****/
+/**********************************/
+
+
+
+/* EXECUTE LOAD REGISTER */
+int execute_cmd_lr(int adr,unsigned int val,mips* arch){
+
+	arch->reg[adr]=val;
+	fprintf(stdout,"The value %x has been loaded in register $%d\n",val,adr);
+	
+	return CMD_OK_RETURN_VALUE;
+
+}
+
+/* PARSE AND EXECUTE LOAD REGISTER */
+int parse_and_execute_cmd_lr(char* input, mips* arch){
+
+	char* separators=" ";
+	char* pch;
+	int cpt=0;
+	int c1=0;
+	int i=0;	
+	unsigned int c2;	
+
+	pch=strtok(input,separators);	
+	/* Test de la presence d'arguments*/
+	if(pch==NULL){
+	 fprintf(stdout,"Too few arguments.\n");
+	return 2;
+	}
+	
+	c1=test_registre(pch);
+
+	while(pch!=NULL){
+	
+	DEBUG_MSG("Parametres : %s", pch);
+
+	/* compteur incrémenté sur l'argument lu */
+	switch(cpt){
+
+	case 0 :
+	/* test adresse */
+	if(c1<0){
+		fprintf(stdout,"Error : the first argument isn't a valide register name\n");
+		return 2;
+		}
+	cpt++;
+	pch=strtok(NULL,separators);
+	break;
+
+	case 1 :
+	/* test valeur */
+	while (pch[i]!='\0' && pch[i]!='\n'){
+	
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in %s\n", pch);
+			return 2;
+			}
+		i++;
+		}
+
+	/* test longueur de l'argument 1 */
+	if (strlen(pch)>8) { 
+		fprintf(stdout,"Argument 2 too long\n");
+		return 2;
+		}
+		
+	c2=(unsigned int)strtol(pch,NULL,16);
+
+	pch=strtok(NULL,separators);
+	cpt=0;
+	if (pch!=NULL){
+		fprintf(stdout,"Warning : LR function only takes two arguments\n");
+	 	return 2;
+		}
+	break;
+	}	
+	}
+	/* execution de la commande */
+	return execute_cmd_lr(c1,c2,arch);
+}
+
+
+
+
+
+/****************************************/
+/***** FONCTIONS DISPLAY ASSEMBLER ******/
+/***************************************/
+
+int parse_and_execute_cmd_da(char* input, mips* arch){
+  
+  /* déclaration des variables */ 	
+	int i=1;
+	char *pch, *pch2;
+	unsigned int arg1,arg2;
+	char* separators=" ";
+	
+	/* On teste d'abord la presence de plusieurs arguments */
+	pch2=strtok(input,separators);
+	
+	if(pch2==NULL){
+	 fprintf(stdout,"Too few arguments.\n");
+	return 2;
+	}
+	
+	pch2=strtok(NULL,separators);
+	
+	if (pch2!=NULL)
+	{
+	  fprintf(stdout,"DA fuction only takes one argument!\n");
+	  return 2;
+	}
+
+	
+	/* On réinitialise le pointeur au debut de la chaine*/
+	pch=strtok(input,separators);
+
+	
+	/*  VERIFICATION DE LA PRESENCE DES 2 ARGUMENTS SEPARES PAR ":" */
+	if(strchr(pch,':')==NULL){
+		fprintf(stdout,"Invalid argument: format da addr:nb_instr\n");
+		return 2;
+		}
+
+	pch=strtok(pch,":");
+	
+	/* si l'adresse commence par '0x' on décale le pointeur de 2 caractères */
+	if(pch[0]=='0' && pch[1]=='x'){pch=pch+2;}
+	/* test longueur de l'argument 1 */
+	if (strlen(pch)>8) { 
+		fprintf(stdout,"Invalid param : parametre should be between 0xOOOOOOOO and 0xffffffff\n");
+		return 2;
+		}
+	
+	/* test base 16 */
+	while(i!=strlen(pch)){	
+		if(!isxdigit(pch[i])){
+			fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	
+	arg1=(unsigned int)strtol(pch,NULL,16);
+	pch=strtok(NULL,":");
+	i=1;
+
+	/* test argument 2 base 10 */
+	while(pch[i]!='\0' && pch[i]!='\n'){	
+		if(!isdigit(pch[i])){
+			fprintf(stdout,"Invalid param : decimal number awaited in '%s'\n", pch);
+			return 2;
+			}
+		i++;
+		}
+	
+	arg2=(unsigned int)strtol(pch,NULL,10);
+			
+	if(arg2>1000)
+	{
+	fprintf(stdout,"Invalid param : maximum number of instructions to display is 1000\n");
+	return 2;
+	}
+	
+	pch=strtok(NULL,separators);
+	if (pch!=NULL)
+	{
+	  fprintf(stdout,"DA fuction only takes one argument!\n");
+	  return 2;
+	}
+
+	
+	return execute_cmd_da(arg1,arg2,arch);
+	}
+
+
+
+int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch)
+{
+  fprintf(stdout,"DA function should display %d instructions from address 0x%x\n",nbr_instr,addr);
+  return CMD_OK_RETURN_VALUE;
+}
+
+
+
+/**************************************/
+/***** FONCTIONS LOAD PROGRAM *********/
+/*************************************/
+
+int parse_and_execute_cmd_lp(char* input, mips* arch)
+{
+	FILE* program;
+	char* pch;
+	char* separators=" ";
+	pch=strtok(input,separators);
+	
+	/* Test de la presence d'arguments*/
+	if(pch==NULL){
+	 fprintf(stdout,"Too few arguments.\n");
+	return 2;
+	}
+	
+
+/* test si l'extension ELF est presente */
+	if(strstr(pch,".ELF")==NULL && strstr(pch,".elf")==NULL)
+	{
+	  fprintf(stdout,"Unknown file format. File should be an .ELF file\n");
+	  return 2;
+	}
+	
+	
+	/* on ouvre le fichier */
+	program=fopen(pch,"r");
+	if(program==NULL)
+	{
+	  	  fprintf(stdout,"%s doesn't exist or can't be loaded\n",pch);
+		  return 2;
+	}
+
+	
+	/* on regarde si il y'a plus d'arguments */
+	pch=strtok(NULL,separators);
+		if (pch!=NULL)
+		{
+		  fprintf(stdout,"LP fuction only takes one argument!\n");
+		  return 2;
+		}
+	
+
+
+	return execute_cmd_lp(program,input,arch);
+}
+
+int execute_cmd_lp(FILE* program , char *nom_fichier ,mips *arch)
+{
+  
+  fprintf(stdout,"Le fichier '%s ' a bien été chargé\nLa suite sera traitée à l'increment II.\n", nom_fichier);
+  fclose(program);
+  return CMD_OK_RETURN_VALUE;
+}

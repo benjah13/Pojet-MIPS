@@ -1,0 +1,1 @@
+REGISTRE  $0 = 0

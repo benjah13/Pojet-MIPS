@@ -1,0 +1,4 @@
+#registre sans $
+
+lr $5 af
+lr 10 af

@@ -1,0 +1,4 @@
+#registre sans $
+
+lr $5 0xaf
+lr 10 0xaf

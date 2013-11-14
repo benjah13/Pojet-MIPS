@@ -1,0 +1,3 @@
+REGISTRE  $4 = 0
+REGISTRE  $2 = 0
+REGISTRE  $1 = 0

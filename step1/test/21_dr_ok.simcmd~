@@ -1,0 +1,4 @@
+# test dr avec erreur
+
+dr $4 $v0
+dr $at

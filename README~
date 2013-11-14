@@ -1,0 +1,30 @@
+Presentation de la structure du dossier.
+
+L'archive ci jointe comporte 4 élements.
+
+
+- le dossier Step2 comportant :
+		- un dossier src comportant les fichiers .c
+		- un dossier include comportant les fichiers .h
+		- un dossier test comportant nos tests
+		- un dossier res contenant les fichiers ELF utilisés dans ce projet
+		- un dossier dictionnary contenant le dictionnaire d'instructions
+		- un Makefile
+		- un dossier scripts contenant un fichier testing.scm permettant de tester le mode commande du simulateur
+		- un script generateur de test automatisé car la création des tests est laborieuse. Ce script prend 2 argument : 
+			- $1 est le nom des fichiers que l'on souhaite créer (ex: 20_da_error2)
+			- $2 est la valeur du code erreur ( FAIL ou PASS ) que l'on souhaite mettre dans le fichier .info
+		Ce script generera donc un fichier $1.info avec un code de retour $2, ainsi que 3 fichiers $1.res $1.out $1.simcmd, et les placera dans le repertoire /test. Le fichier .simcmd sera 			rempli en lignes par les arguments suivants.
+
+- le dossier testing contient le script shell permettant d'automatiser les tests
+- Le rapport concernant ce deuxième incrément.
+- le README ci présent. 			
+
+Le programme gére pour l'instant l'ensemble des fonctions suivantes :
+-  load memroy
+-  display memory (syntaxe "da hexa" "da hexa~hexa" "da hexa:dec")
+-  load register
+-  display register
+-  display assembleur (syntaxe "da hexa:dec")
+-  load program 
+-  man qui est un manuel d'utilisation répértoriant les fonctions
