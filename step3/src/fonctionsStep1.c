@@ -496,7 +496,8 @@ int execute_cmd_dr(int test_reg, mips* arch){
 INFO_MSG("Entrée dans la fonction Execute_cmd_dr");
 
 	int i=0;
-
+	
+	
 	/* registre inconnu */
 	if(test_reg==-3){
 		fprintf(stdout,"Unknown register\n");
