@@ -202,7 +202,7 @@ void execute_bgtz(int word, mips* arch){
 	fprintf(stdout,"0x%08x:\tBGTZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
 
 	if(arch->reg[rs].val>0){
-		setRegister(32,arch->reg[32].val+offset-4,arch);
+		setRegister(32,arch->reg[32].val+offset,arch);
 		}
 
 	}
@@ -226,7 +226,7 @@ void execute_blez(int word, mips* arch){
 	fprintf(stdout,"0x%08x:\tBLEZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
 
 	if(arch->reg[rs].val<=0){
-		setRegister(32,arch->reg[32].val+offset-4,arch);
+		setRegister(32,arch->reg[32].val+offset,arch);
 		}
 
 	}
@@ -251,7 +251,7 @@ void execute_bne(int word, mips* arch){
 	fprintf(stdout,"0x%08x:\tBNE\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset);
 
 	if(arch->reg[rs].val!=arch->reg[rt].val){
-		setRegister(32,arch->reg[32].val+offset-4,arch);
+		setRegister(32,arch->reg[32].val+offset,arch);
 		}
 	}
 

@@ -1,0 +1,122 @@
+/**
+ * @file simMips.c
+ * @author François Cayre, Nicolas Castagné
+ * @date Fri Jun 15 18:13:02 2012 puis aout 2013
+ * @brief Main pour le début du projet simulateur MIPS.
+ *
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <libelf.h>
+#include "libelf.h"
+
+/* la librairie readline */
+#include <readline/readline.h>
+#include <readline/history.h>
+
+
+/* macros de DEBUG_MSG fournies , etc */
+#include "global.h"
+#include "mipself.h"
+#include "structure.h"
+#include "libelf.h" 
+#include "shellStep3.h"
+#include "notify.h" 
+#include "fonctions.h" 
+#include "constantes.h" 
+#include "fonctionsStep1.h" 
+#include "testsStep1.h" 
+#include "fonctionsStep2.h" 
+#include "elfimport.h"
+#include "cmdSearch.h"
+#include "execution.h"
+#include "man.h"
+
+
+/*************************************************************\
+Les commandes du simulateur.
+
+ Dans cette version, deux commandes :
+	"testcmd" qui attend un nombre hexa strictement positif et affiche ce nombre +1 dans le terminal
+	"exit" qui quitte le simulateur
+
+ Deux fonctions C par commande :
+	1/ une qui parse les paramètres "parse_and_execute_cmd_<nomdecommande>(char *)"
+	2/ une qui exécute la commande "execute_cmd_<nomdecommande>(...)"
+ \*************************************************************/
+
+
+int main ( int argc, char *argv[] ) {
+    /* exemples d'utilisation des macros du fichier notify.h */
+    
+    mips arch;
+    init_mips(&arch);
+    Liste_Bp* liste=malloc(sizeof(*liste));
+    liste->nb_bp=0;
+    INFO_MSG("Un message INFO_MSG : Debut du programme %s", argv[0]); /* macro INFO_MSG */
+
+    FILE* fp = NULL; /* le flux dans lequel les commande seront lues : stdin (mode shell) ou un fichier */
+ 
+    if ( argc > 2 ) {
+        usage_ERROR_MSG( argv[0] );
+        exit( EXIT_FAILURE );
+    }
+    if(argc == 2 && strcmp(argv[1], "-h") == 0) {
+        usage_ERROR_MSG( argv[0] );
+        exit( EXIT_SUCCESS );
+    }
+
+    /*par defaut : mode shell interactif */
+    fp = stdin;
+    if(argc == 2) {
+        /* mode fichier de commandes */
+	
+        fp = fopen( argv[1], "r" );
+        if ( fp == NULL ) {
+            perror( "fopen" );
+            exit( EXIT_FAILURE );
+        }
+    }
+
+    /* boucle principale : lit puis execute une cmd en boucle */
+    while ( 1 ) {
+        char input[MAX_STR];
+        if ( acquire_line( fp,  input )  == 0 ) {
+            /* Une nouvelle ligne a ete acquise dans le flux fp*/
+            int res = parse_and_execute_cmd_string(input,&arch,liste); /* execution de la commande */
+            switch(res) {
+            case CMD_OK_RETURN_VALUE: /* tout s'est bien passé */
+                break;
+            case CMD_EMPTY_RETURN_VALUE: /* commande vide */
+                /* rien a faire ! */
+                break;
+            case CMD_EXIT_RETURN_VALUE:
+                /* sortie propre du programme */
+                if ( fp != stdin ) {
+                    fclose( fp );
+                }
+                exit(EXIT_SUCCESS);
+                break;
+            default:
+                /* erreur durant l'execution de la commande */
+                /* En mode "fichier" toute erreur implique la fin du programme ! */
+                if ( fp != stdin ) {
+                    fclose( fp );
+                    /*macro ERROR_MSG : message d'erreur puis fin de programme ! */
+                    ERROR_MSG("ERREUR DETECTEE. Aborts");
+                }
+                break;
+            }
+        }
+        if( fp != stdin && feof(fp) ) {
+            /* mode fichier, fin de fichier => sortie propre du programme */
+            DEBUG_MSG("FIN DE FICHIER");
+            fclose( fp );
+            exit(EXIT_SUCCESS);
+        }
+    }
+    /* tous les cas de sortie du programme sont gérés plus haut*/
+    ERROR_MSG("SHOULD NEVER BE HERE\n");
+}

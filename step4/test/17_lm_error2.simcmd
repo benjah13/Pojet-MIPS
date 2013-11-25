@@ -1,0 +1,4 @@
+# valeur a inserer de la memoire trop grande
+
+lm 0x60 0x10
+lm 0x60 0xffa

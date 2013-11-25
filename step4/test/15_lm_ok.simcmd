@@ -1,0 +1,4 @@
+# valeur a inserer dans le registre trop grande
+
+lm 0x60 0x12
+lm 0x1d0 0x12

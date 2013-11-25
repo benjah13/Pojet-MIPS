@@ -1,0 +1,3 @@
+# test dr ok
+dr $4 $v0
+dr $at

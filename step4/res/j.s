@@ -1,0 +1,6 @@
+.set noreorder
+
+j 0xc
+addi $t2,$t3,0xff
+j 0x14
+addi $t0,$t1,0x12

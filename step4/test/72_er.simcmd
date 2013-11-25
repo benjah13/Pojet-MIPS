@@ -1,0 +1,6 @@
+#Commande a lancer dans le script 72_er
+
+bp 0x4
+bp 0x8
+er 0x4
+db

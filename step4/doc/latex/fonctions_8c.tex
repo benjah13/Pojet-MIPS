@@ -1,0 +1,119 @@
+\hypertarget{fonctions_8c}{\section{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions.c \-File \-Reference}
+\label{fonctions_8c}\index{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions.\-c@{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/fonctions.\-c}}
+}
+{\ttfamily \#include $<$stdlib.\-h$>$}\*
+{\ttfamily \#include $<$stdio.\-h$>$}\*
+{\ttfamily \#include $<$string.\-h$>$}\*
+{\ttfamily \#include $<$libelf.\-h$>$}\*
+{\ttfamily \#include $<$readline/readline.\-h$>$}\*
+{\ttfamily \#include $<$readline/history.\-h$>$}\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}mipself.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}notify.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}structure.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}constantes.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}tests\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step2.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}elfimport.\-h\char`\"{}}\*
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{fonctions_8c_a1080f0e90cf76421c8561b37aa693033}{execute\-\_\-cmd\-\_\-testcmd} (int hex\-Value)
+\item 
+int \hyperlink{fonctions_8c_a72b6e565f3c7b8abf7aedb7e90fa389d}{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd} (char $\ast$params\-Str, \hyperlink{structmips}{mips} $\ast$arch)
+\item 
+int \hyperlink{fonctions_8c_a9ff80e1ec0ad055f65ad4d90dd380e42}{execute\-\_\-cmd\-\_\-exit} ()
+\item 
+int \hyperlink{fonctions_8c_acc5b92fd6c5a610caf12e48e06ec24fc}{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit} (char $\ast$params\-Str)
+\item 
+int \hyperlink{fonctions_8c_ad96e00e644fa8226570a0396e13fdd22}{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string} (char $\ast$input, \hyperlink{structmips}{mips} $\ast$arch)
+\item 
+int \hyperlink{fonctions_8c_a8a8a4089a78055491f47b317015ef108}{acquire\-\_\-line} (\-F\-I\-L\-E $\ast$fp, char $\ast$input)
+\item 
+void \hyperlink{fonctions_8c_a67ca77e33a50ce295420c83ad6ac88d2}{usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G} (char $\ast$command)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Function \-Documentation}
+\hypertarget{fonctions_8c_a8a8a4089a78055491f47b317015ef108}{\index{fonctions.\-c@{fonctions.\-c}!acquire\-\_\-line@{acquire\-\_\-line}}
+\index{acquire\-\_\-line@{acquire\-\_\-line}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{acquire\-\_\-line}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf acquire\-\_\-line} (
+\begin{DoxyParamCaption}
+\item[{\-F\-I\-L\-E $\ast$}]{fp, }
+\item[{char $\ast$}]{input}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_a8a8a4089a78055491f47b317015ef108}
+
+
+\-Definition at line 146 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_a9ff80e1ec0ad055f65ad4d90dd380e42}{\index{fonctions.\-c@{fonctions.\-c}!execute\-\_\-cmd\-\_\-exit@{execute\-\_\-cmd\-\_\-exit}}
+\index{execute\-\_\-cmd\-\_\-exit@{execute\-\_\-cmd\-\_\-exit}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{execute\-\_\-cmd\-\_\-exit}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf execute\-\_\-cmd\-\_\-exit} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_a9ff80e1ec0ad055f65ad4d90dd380e42}
+
+
+\-Definition at line 59 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_a1080f0e90cf76421c8561b37aa693033}{\index{fonctions.\-c@{fonctions.\-c}!execute\-\_\-cmd\-\_\-testcmd@{execute\-\_\-cmd\-\_\-testcmd}}
+\index{execute\-\_\-cmd\-\_\-testcmd@{execute\-\_\-cmd\-\_\-testcmd}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{execute\-\_\-cmd\-\_\-testcmd}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf execute\-\_\-cmd\-\_\-testcmd} (
+\begin{DoxyParamCaption}
+\item[{int}]{hex\-Value}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_a1080f0e90cf76421c8561b37aa693033}
+
+
+\-Definition at line 30 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_acc5b92fd6c5a610caf12e48e06ec24fc}{\index{fonctions.\-c@{fonctions.\-c}!parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit}}
+\index{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-exit} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{params\-Str}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_acc5b92fd6c5a610caf12e48e06ec24fc}
+
+
+\-Definition at line 66 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_ad96e00e644fa8226570a0396e13fdd22}{\index{fonctions.\-c@{fonctions.\-c}!parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string}}
+\index{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-string} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{input, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_ad96e00e644fa8226570a0396e13fdd22}
+
+
+\-Definition at line 79 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_a72b6e565f3c7b8abf7aedb7e90fa389d}{\index{fonctions.\-c@{fonctions.\-c}!parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd}}
+\index{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd@{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf parse\-\_\-and\-\_\-execute\-\_\-cmd\-\_\-testcmd} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{params\-Str, }
+\item[{{\bf mips} $\ast$}]{arch}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_a72b6e565f3c7b8abf7aedb7e90fa389d}
+
+
+\-Definition at line 43 of file fonctions.\-c.
+
+\hypertarget{fonctions_8c_a67ca77e33a50ce295420c83ad6ac88d2}{\index{fonctions.\-c@{fonctions.\-c}!usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G@{usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G}}
+\index{usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G@{usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G}!fonctions.c@{fonctions.\-c}}
+\subsubsection[{usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf usage\-\_\-\-E\-R\-R\-O\-R\-\_\-\-M\-S\-G} (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{command}
+\end{DoxyParamCaption}
+)}}\label{fonctions_8c_a67ca77e33a50ce295420c83ad6ac88d2}
+
+
+\-Definition at line 178 of file fonctions.\-c.
+

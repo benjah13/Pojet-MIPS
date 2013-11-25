@@ -1,0 +1,6 @@
+#Commande a lancer dans le script 87_combine_bp_run
+
+lp procedure.o
+bp 0x28
+run
+run

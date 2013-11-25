@@ -1,0 +1,222 @@
+\hypertarget{mipself_8c}{\section{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/mipself.c \-File \-Reference}
+\label{mipself_8c}\index{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/mipself.\-c@{/home/ben\-\_\-jah/\-Bureau/\-Projet\-\_\-informatique/step2/src/mipself.\-c}}
+}
+{\ttfamily \#include $<$stdio.\-h$>$}\*
+{\ttfamily \#include $<$stdlib.\-h$>$}\*
+{\ttfamily \#include $<$string.\-h$>$}\*
+{\ttfamily \#include $<$fcntl.\-h$>$}\*
+{\ttfamily \#include $<$unistd.\-h$>$}\*
+{\ttfamily \#include $<$libelf.\-h$>$}\*
+{\ttfamily \#include $<$readline/readline.\-h$>$}\*
+{\ttfamily \#include $<$readline/history.\-h$>$}\*
+{\ttfamily \#include \char`\"{}global.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}mipself.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}notify.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}structure.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}constantes.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}tests\-Step1.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}fonctions\-Step2.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}elfimport.\-h\char`\"{}}\*
+\subsection*{\-Data \-Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structnode_symbol}{node\-Symbol}
+\end{DoxyCompactItemize}
+\subsection*{\-Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{mipself_8c_a2b4054af9a8f1ec4104846747ded1675}{\-H\-A\-S\-H\-S\-I\-Z\-E}~37
+\end{DoxyCompactItemize}
+\subsection*{\-Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct \hyperlink{structnode_symbol}{node\-Symbol} $\ast$ \hyperlink{mipself_8c_a50768f204522ee04b05e966704f9c38b}{list\-Symboles}
+\end{DoxyCompactItemize}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \hyperlink{mipself_8c_a242cb4a5be681ec03c68341e093ff4d2}{reloc\-Name} (unsigned char type)
+\item 
+char $\ast$ \hyperlink{mipself_8c_a8540557372dc0c502abb143cc0625ff5}{sht\-Name} (\-Elf32\-\_\-\-Word \-Section\-Type)
+\item 
+char $\ast$ \hyperlink{mipself_8c_aeda1162e1720814486dfd8eb2498ba9f}{st\-Name} (unsigned char t)
+\item 
+char $\ast$ \hyperlink{mipself_8c_a4da5d2a725b7756d7ace31a0394016e2}{get\-Section\-Header\-Name} (\-Elf32\-\_\-\-Word index)
+\item 
+char $\ast$ \hyperlink{mipself_8c_aa5ba77c68056d8f1034a3329b5cd16f2}{get\-Name} (\-Elf32\-\_\-\-Word index)
+\item 
+\-Elf32\-\_\-\-Sym $\ast$ \hyperlink{mipself_8c_aafc9acb589381dda2295a37a828dd946}{get\-Symb} (\-Elf32\-\_\-\-Word index)
+\item 
+void \hyperlink{mipself_8c_a90eb775ed3144d98b08fca306f2ad958}{free\-Hash\-Table} ()
+\item 
+int \hyperlink{mipself_8c_afa50a4f1b742d908fd4703227d829b28}{hash\-Code} (unsigned long adr)
+\item 
+void \hyperlink{mipself_8c_a863c1f215a087901993febc5721369d7}{add\-Symbol} (unsigned long adr, char $\ast$ident)
+\item 
+char $\ast$ \hyperlink{mipself_8c_a08a149a7cf1133cb2573309abeaf3daf}{get\-Address\-Name} (unsigned long adr)
+\item 
+void \hyperlink{mipself_8c_ad7c69fca64ebcadbf6fccb646cc02053}{print\-E\-L\-F\-Section} (\hyperlink{struct_section_e_l_f}{\-Section\-E\-L\-F} $\ast$section)
+\item 
+int \hyperlink{mipself_8c_aeb2c342c1be96675e98dd8122b3ea67f}{mipsloader} (const char $\ast$filename, \hyperlink{struct_section_e_l_f}{\-Section\-E\-L\-F} $\ast$text\-Section, \hyperlink{struct_section_e_l_f}{\-Section\-E\-L\-F} $\ast$data\-Section, \hyperlink{struct_section_e_l_f}{\-Section\-E\-L\-F} $\ast$bss\-Section)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Define \-Documentation}
+\hypertarget{mipself_8c_a2b4054af9a8f1ec4104846747ded1675}{\index{mipself.\-c@{mipself.\-c}!\-H\-A\-S\-H\-S\-I\-Z\-E@{\-H\-A\-S\-H\-S\-I\-Z\-E}}
+\index{\-H\-A\-S\-H\-S\-I\-Z\-E@{\-H\-A\-S\-H\-S\-I\-Z\-E}!mipself.c@{mipself.\-c}}
+\subsubsection[{\-H\-A\-S\-H\-S\-I\-Z\-E}]{\setlength{\rightskip}{0pt plus 5cm}\#define {\bf \-H\-A\-S\-H\-S\-I\-Z\-E}~37}}\label{mipself_8c_a2b4054af9a8f1ec4104846747ded1675}
+
+
+\-Definition at line 262 of file mipself.\-c.
+
+
+
+\subsection{\-Typedef \-Documentation}
+\hypertarget{mipself_8c_a50768f204522ee04b05e966704f9c38b}{\index{mipself.\-c@{mipself.\-c}!list\-Symboles@{list\-Symboles}}
+\index{list\-Symboles@{list\-Symboles}!mipself.c@{mipself.\-c}}
+\subsubsection[{list\-Symboles}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf node\-Symbol}$\ast$ {\bf list\-Symboles}}}\label{mipself_8c_a50768f204522ee04b05e966704f9c38b}
+
+
+\-Definition at line 272 of file mipself.\-c.
+
+
+
+\subsection{\-Function \-Documentation}
+\hypertarget{mipself_8c_a863c1f215a087901993febc5721369d7}{\index{mipself.\-c@{mipself.\-c}!add\-Symbol@{add\-Symbol}}
+\index{add\-Symbol@{add\-Symbol}!mipself.c@{mipself.\-c}}
+\subsubsection[{add\-Symbol}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf add\-Symbol} (
+\begin{DoxyParamCaption}
+\item[{unsigned long}]{adr, }
+\item[{char $\ast$}]{ident}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a863c1f215a087901993febc5721369d7}
+
+
+\-Definition at line 318 of file mipself.\-c.
+
+\hypertarget{mipself_8c_a90eb775ed3144d98b08fca306f2ad958}{\index{mipself.\-c@{mipself.\-c}!free\-Hash\-Table@{free\-Hash\-Table}}
+\index{free\-Hash\-Table@{free\-Hash\-Table}!mipself.c@{mipself.\-c}}
+\subsubsection[{free\-Hash\-Table}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf free\-Hash\-Table} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a90eb775ed3144d98b08fca306f2ad958}
+
+
+\-Definition at line 285 of file mipself.\-c.
+
+\hypertarget{mipself_8c_a08a149a7cf1133cb2573309abeaf3daf}{\index{mipself.\-c@{mipself.\-c}!get\-Address\-Name@{get\-Address\-Name}}
+\index{get\-Address\-Name@{get\-Address\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{get\-Address\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf get\-Address\-Name} (
+\begin{DoxyParamCaption}
+\item[{unsigned long}]{adr}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a08a149a7cf1133cb2573309abeaf3daf}
+
+
+\-Definition at line 345 of file mipself.\-c.
+
+\hypertarget{mipself_8c_aa5ba77c68056d8f1034a3329b5cd16f2}{\index{mipself.\-c@{mipself.\-c}!get\-Name@{get\-Name}}
+\index{get\-Name@{get\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{get\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf get\-Name} (
+\begin{DoxyParamCaption}
+\item[{\-Elf32\-\_\-\-Word}]{index}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_aa5ba77c68056d8f1034a3329b5cd16f2}
+
+
+\-Definition at line 227 of file mipself.\-c.
+
+\hypertarget{mipself_8c_a4da5d2a725b7756d7ace31a0394016e2}{\index{mipself.\-c@{mipself.\-c}!get\-Section\-Header\-Name@{get\-Section\-Header\-Name}}
+\index{get\-Section\-Header\-Name@{get\-Section\-Header\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{get\-Section\-Header\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf get\-Section\-Header\-Name} (
+\begin{DoxyParamCaption}
+\item[{\-Elf32\-\_\-\-Word}]{index}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a4da5d2a725b7756d7ace31a0394016e2}
+
+
+\-Definition at line 210 of file mipself.\-c.
+
+\hypertarget{mipself_8c_aafc9acb589381dda2295a37a828dd946}{\index{mipself.\-c@{mipself.\-c}!get\-Symb@{get\-Symb}}
+\index{get\-Symb@{get\-Symb}!mipself.c@{mipself.\-c}}
+\subsubsection[{get\-Symb}]{\setlength{\rightskip}{0pt plus 5cm}\-Elf32\-\_\-\-Sym$\ast$ {\bf get\-Symb} (
+\begin{DoxyParamCaption}
+\item[{\-Elf32\-\_\-\-Word}]{index}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_aafc9acb589381dda2295a37a828dd946}
+
+
+\-Definition at line 244 of file mipself.\-c.
+
+\hypertarget{mipself_8c_afa50a4f1b742d908fd4703227d829b28}{\index{mipself.\-c@{mipself.\-c}!hash\-Code@{hash\-Code}}
+\index{hash\-Code@{hash\-Code}!mipself.c@{mipself.\-c}}
+\subsubsection[{hash\-Code}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf hash\-Code} (
+\begin{DoxyParamCaption}
+\item[{unsigned long}]{adr}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_afa50a4f1b742d908fd4703227d829b28}
+
+
+\-Definition at line 303 of file mipself.\-c.
+
+\hypertarget{mipself_8c_aeb2c342c1be96675e98dd8122b3ea67f}{\index{mipself.\-c@{mipself.\-c}!mipsloader@{mipsloader}}
+\index{mipsloader@{mipsloader}!mipself.c@{mipself.\-c}}
+\subsubsection[{mipsloader}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf mipsloader} (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{filename, }
+\item[{{\bf \-Section\-E\-L\-F} $\ast$}]{text\-Section, }
+\item[{{\bf \-Section\-E\-L\-F} $\ast$}]{data\-Section, }
+\item[{{\bf \-Section\-E\-L\-F} $\ast$}]{bss\-Section}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_aeb2c342c1be96675e98dd8122b3ea67f}
+
+
+\-Definition at line 551 of file mipself.\-c.
+
+\hypertarget{mipself_8c_ad7c69fca64ebcadbf6fccb646cc02053}{\index{mipself.\-c@{mipself.\-c}!print\-E\-L\-F\-Section@{print\-E\-L\-F\-Section}}
+\index{print\-E\-L\-F\-Section@{print\-E\-L\-F\-Section}!mipself.c@{mipself.\-c}}
+\subsubsection[{print\-E\-L\-F\-Section}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf print\-E\-L\-F\-Section} (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Section\-E\-L\-F} $\ast$}]{section}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_ad7c69fca64ebcadbf6fccb646cc02053}
+
+
+\-Definition at line 364 of file mipself.\-c.
+
+\hypertarget{mipself_8c_a242cb4a5be681ec03c68341e093ff4d2}{\index{mipself.\-c@{mipself.\-c}!reloc\-Name@{reloc\-Name}}
+\index{reloc\-Name@{reloc\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{reloc\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf reloc\-Name} (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{type}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a242cb4a5be681ec03c68341e093ff4d2}
+
+
+\-Definition at line 79 of file mipself.\-c.
+
+\hypertarget{mipself_8c_a8540557372dc0c502abb143cc0625ff5}{\index{mipself.\-c@{mipself.\-c}!sht\-Name@{sht\-Name}}
+\index{sht\-Name@{sht\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{sht\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf sht\-Name} (
+\begin{DoxyParamCaption}
+\item[{\-Elf32\-\_\-\-Word}]{\-Section\-Type}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_a8540557372dc0c502abb143cc0625ff5}
+
+
+\-Definition at line 124 of file mipself.\-c.
+
+\hypertarget{mipself_8c_aeda1162e1720814486dfd8eb2498ba9f}{\index{mipself.\-c@{mipself.\-c}!st\-Name@{st\-Name}}
+\index{st\-Name@{st\-Name}!mipself.c@{mipself.\-c}}
+\subsubsection[{st\-Name}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf st\-Name} (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{t}
+\end{DoxyParamCaption}
+)}}\label{mipself_8c_aeda1162e1720814486dfd8eb2498ba9f}
+
+
+\-Definition at line 176 of file mipself.\-c.
+
