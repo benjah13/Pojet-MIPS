@@ -46,6 +46,23 @@ extern "C" {
 #define COLOR_WARNING     COLOR_YELLOW
 #define COLOR_INFO        COLOR_GREEN
 
+#define INTRO() do \
+  { \
+fprintf(stderr,"\033[H\033[2J");\
+fprintf(stderr,"\n"); \
+fprintf(stderr,"\033[%dm		      _                     _           \n",COLOR_RED); \
+fprintf(stderr,"\033[%dm		     (_)                   (_)          \n", COLOR_RED);\
+fprintf(stderr,"\033[%dm		  ___ _ _ __ ___  _ __ ___  _ _ __  ___ \n", COLOR_RED); \
+fprintf(stderr,"\033[%dm		 / __| | '_ ` _ \\| '_ ` _ \\| | '_ \\/ __|\n",COLOR_YELLOW); \
+fprintf(stderr,"\033[%dm		 \\__ \\ | | | | | | | | | | | | |_) \\__ \\\n",COLOR_YELLOW); \
+fprintf(stderr,"\033[%dm		 |___/_|_| |_| |_|_| |_| |_|_| .__/|___/\n", COLOR_GREEN); \
+fprintf(stderr,"\033[%dm		                             | |        \n",COLOR_GREEN); \
+fprintf(stderr,"\033[%dm		                             |_|        \n",COLOR_GREEN); \
+fprintf(stderr,"\n\n\n");\
+}while( 0 )
+  
+  
+  
 #define STYLE(purpose)						\
   (purpose == FOR_ERRORS ? STYLE_ERROR :			\
    (purpose == FOR_WARNINGS ? STYLE_WARNING : STYLE_INFO ))

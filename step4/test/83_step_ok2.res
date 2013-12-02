@@ -25,9 +25,13 @@ Table des symboles .text .data .bss .reginfo .pdr _start procedure OK KO
 0x00000000:	ADDI	$t1	$zero	8
 0x00000004:	ADD	$t2	$zero	$t1
 0x00000008:	SLL	$t1	$t1	2
-0x0000000c:	JAL	36
+0x0000000c:	JAL	36	<procedure>
+
 0x00000024:	SRL	$t1	$t1	2
-0x00000028:	JR	$31
-0x00000014:	BEQ	$t1	$t2	20
-0x0000002c:	NOP
+0x00000028:	JR	$ra
+
+0x00000010:	NOP
+0x00000018:	NOP
+0x0000001c:	J	48	<KO>
+
 0x00000030:	NOP

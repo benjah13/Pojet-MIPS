@@ -3,4 +3,7 @@
 
 00000000
       00: 00000000	NOP
+
+	End of section .text
+
 Invalid argument: format da 0xaddr:nb_instr

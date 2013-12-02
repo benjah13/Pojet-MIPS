@@ -68,7 +68,7 @@ int getwordBis(unsigned int addr, SectionELF *sectionareloger){
 	int nb_int=0;
 
 	/* Chargement d'une instruction */
-	bits=&(sectionareloger->data[sectionareloger->startAddress+addr]);
+	bits=&(sectionareloger->data[addr]);
 	
 	/* Inversion little endian->big endian */
 	char str[8];
@@ -210,8 +210,8 @@ void execute_beq(int word, mips* arch){
 	/* exécution de l'instruction */
 	offset=offset<<2;
 
-	/* affichage instruction */		
-	fprintf(stdout,"0x%08x:\tBEQ\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset);
+	/* affichage instruction */
+	fprintf(stdout,"0x%08x:\tBEQ\t$%s\t$%s\t%d\t<%s>\n\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset,getAddressName(arch->reg[32].val+offset+4));
 
 	if(arch->reg[rs].val==arch->reg[rt].val){
 		arch->reg[32].val=arch->reg[32].val+offset;
@@ -267,8 +267,8 @@ void execute_blez(int word, mips* arch){
 
 	}
 
-void execute_bne(int word, mips* arch){
-
+void execute_bne(int word, mips* arch)
+{
 	/* chargement de l'instruction */
 	int instr=0;
 	instr=getword(arch->reg[32].val,arch);
@@ -284,15 +284,16 @@ void execute_bne(int word, mips* arch){
 	offset=offset<<2;
 
 	/* affichage instruction */	
-	fprintf(stdout,"0x%08x:\tBNE\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset);
+	fprintf(stdout,"0x%08x:\tBNE\t$%s\t$%s\t%d\t<%s>\n\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset,getAddressName(arch->reg[32].val+offset+4));
 
-	if(arch->reg[rs].val!=arch->reg[rt].val){
-		setRegister(32,arch->reg[32].val+offset,arch);
-		}
+	if(arch->reg[rs].val!=arch->reg[rt].val)
+	{
+	setRegister(32,arch->reg[32].val+offset,arch);
 	}
 
-void execute_div(int word, mips* arch){
+}
 
+void execute_div(int word, mips* arch){
 
 	/* chargement de l'instruction */
 	int instr=0;
@@ -326,9 +327,9 @@ void execute_j(int word, mips* arch){
 	target=target<<2;
 
 	/* affichage instruction */
-	fprintf(stdout,"0x%08x:\tJ\t%d\n",arch->reg[32].val,target);
+	fprintf(stdout,"0x%08x:\tJ\t%d\t<%s>\n\n",arch->reg[32].val,target,getAddressName(target));
 
-	setRegister(32,arch->reg[32].val-(arch->reg[32].val&0xFFFFFFF)+target,arch);
+	setRegister(32,arch->reg[32].val-(arch->reg[32].val&0xFFFFFFF)+target-4,arch);
 
 	}
 
@@ -347,7 +348,7 @@ void execute_jal(int word, mips* arch){
 	target=target<<2;
 
 	/* affichage instruction */
-	fprintf(stdout,"0x%08x:\tJAL\t%d\n",arch->reg[32].val,target);
+	fprintf(stdout,"0x%08x:\tJAL\t%d\t<%s>\n\n",arch->reg[32].val,target,getAddressName(target));
 	setRegister(32,arch->reg[32].val-(arch->reg[32].val&0xFFFFFFF)+target,arch);
 
 	}
@@ -363,10 +364,10 @@ void execute_jr(int word, mips* arch){
 	rs=getbits(instr,21,25);
 
 	/* affichage instruction */
-	fprintf(stdout,"0x%08x:\tJR\t$%d\n",arch->reg[32].val,rs);
+	fprintf(stdout,"0x%08x:\tJR\t$%s\n\n",arch->reg[32].val,arch->reg[rs].mnemo);
 
 	/* exécution de l'instruction */
-	setRegister(32,arch->reg[rs].val,arch);
+	setRegister(32,arch->reg[rs].val-4,arch);
 
 	}
 
@@ -408,7 +409,7 @@ void execute_lw(int word, mips* arch){
 	fprintf(stdout,"0x%08x:\tLW\t$%s\t%d(%d)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,base);
 
 	/* exécution de l'instruction */
-	if(arch->reg[base].val+offset!=0%4){
+	if((arch->reg[base].val+offset)%4!=0){
 		SignalException("Address Error",arch);
 		}
 	else{
@@ -670,19 +671,18 @@ void execute_sw(int word, mips* arch){
 	/* chargement de l'instruction */
 	int instr=0;
 	instr=getword(arch->reg[32].val,arch);
-
+ 
 	/* décomposition du word */
 	unsigned int rt=0,base=0;
-	int offset=0;
-	offset=(int16_t)getbits(instr,0,15);
+	short offset=(short)getbits(instr,0,15);
 	rt=getbits(instr,16,20);
 	base=getbits(instr,21,25);
 
 	/* affichage instruction */	
-	fprintf(stdout,"0x%08x:\tSW\t$%s\t%d(%d)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,base);
+	fprintf(stdout,"0x%08x:\tSW\t$%s\t0x%x($%s)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,arch->reg[base].mnemo);
 
 	/* exécution de l'instruction */
-	if(arch->reg[base].val+offset!=0%4){
+	if((arch->reg[base].val+offset)%4!=0){
 		SignalException("Address Error",arch);
 		}
 	else{
@@ -697,15 +697,18 @@ void execute_sw(int word, mips* arch){
 		break;
 	
 		case BSS:
-		arch->segment[BSS].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress]=(arch->reg[rt].val)>>8;
+		arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
 		break;
 
 		case TEXT:
-		arch->segment[TEXT].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress]=(arch->reg[rt].val)>>8;
+		arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
 		break;
 		
 		case DATA:
-		arch->segment[DATA].data[arch->reg[base].val+offset]=arch->reg[rt].val;
+		arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress]=(arch->reg[rt].val)>>8;
+		arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
 		break;
 
 			}
@@ -768,6 +771,7 @@ void init_functionTab(mips* arch,executor executor_t[128]){
 	executor_t[2]=execute_srl;
 	executor_t[3]=execute_rotr;
 	executor_t[8]=execute_jr;
+	executor_t[12]=execute_syscall;
 	executor_t[16]=execute_mfhi;
 	executor_t[18]=execute_mflo;
 	executor_t[24]=execute_mult;

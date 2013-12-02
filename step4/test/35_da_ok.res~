@@ -3,4 +3,7 @@
 
 00000000
       00: 00000000	NOP
-Invalid param : decimal number awaited in 'vv'
+      04: 00000000	NOP
+
+	End of section .text
+

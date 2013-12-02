@@ -1,4 +1,2 @@
-# test da erreur arg1 
-
-da 0x001:1
-da 0x001fffffffffff:20
+da 0x0:2
+da 0x0 : 4

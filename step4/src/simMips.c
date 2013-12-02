@@ -49,7 +49,9 @@ Les commandes du simulateur.
 
 
 int main ( int argc, char *argv[] ) {
-    /* exemples d'utilisation des macros du fichier notify.h */
+
+    INTRO();
+
     
     mips arch;
     init_mips(&arch);

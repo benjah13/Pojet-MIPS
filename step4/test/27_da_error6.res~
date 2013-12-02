@@ -4,3 +4,7 @@
 00000000
       00: 00000000	NOP
       04: 00000000	NOP
+
+	End of section .text
+
+DA function only takes one argument! Format da 0xaddr:nb_instr

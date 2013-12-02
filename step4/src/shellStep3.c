@@ -223,7 +223,8 @@ int execute_cmd_run(unsigned int addr, mips* arch, Liste_Bp* liste){
 				executor[code](instruction_int,arch);
 
 				/* test si retour au jal+4 */
-				if(arch->reg[32].val==arch->reg[31].val){procedure=0;}
+				if(arch->reg[32].val==arch->reg[31].val){
+				procedure=0;}
 			  
 				/* Incrémentation du PC */
 				if(procedure){
@@ -241,7 +242,7 @@ int execute_cmd_run(unsigned int addr, mips* arch, Liste_Bp* liste){
 			}
 		
 		/* Incrémentation du PC */
-		if(procedure==0 && code!=8 && code!=66){arch->reg[32].val=arch->reg[32].val+4;}
+                arch->reg[32].val=arch->reg[32].val+4;
 		
 		/* test breakpoint */
 		if(isBP(arch->reg[32].val,liste)==1){
@@ -459,7 +460,8 @@ int execute_cmd_step(mips* arch,Liste_Bp* liste){
 	
 		}
 		
-	else if(procedure==0 && code!=8 && code!=66){arch->reg[32].val=arch->reg[32].val+4;}
+	/* Incrémentation du PC */
+	arch->reg[32].val=arch->reg[32].val+4;
 
 	
 	return CMD_OK_RETURN_VALUE;
@@ -521,11 +523,8 @@ int execute_cmd_stepInto(mips* arch){
 
 		  
 
-	/* S'il y a une procédure : cad si appel de jal */
-	
-		if(code!=67 && code!=66 && code !=8 ){
-		arch->reg[32].val=arch->reg[32].val+4; 
-		}
+	/* Incrémentation du PC */
+	arch->reg[32].val=arch->reg[32].val+4;
 				 
 	return CMD_OK_RETURN_VALUE;
   

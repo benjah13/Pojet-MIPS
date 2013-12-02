@@ -484,7 +484,7 @@ static void relocZone(MemZone *Zone,  MemZone *EnsZones) {
     Elf_Data    *data ;  // donnee elf qq
 	
 	int i,type;
-	unsigned int V,P,S,A,AHL,AHI,ALO;
+	unsigned int A,V,S,P,PHI,PLO,AHL,AHI,ALO;
 	unsigned char b1,b2,b3,b4;
 	if (Zone->rel_scn == NULL)
         return ; // zone abstente, pas de données de relocation, on ne fait rien
@@ -524,7 +524,8 @@ static void relocZone(MemZone *Zone,  MemZone *EnsZones) {
 	
     // CODE CI-DESSOUS A CHANGER!!
     if (nbToReloc > 0) {
-		SectionELF * sectionareloger = Zone->exportSection;
+		
+	SectionELF * sectionareloger = Zone->exportSection;
 		// sectionareloger est un pointeur sur la structure "section" que vous connaissez déjà.
 	for(i=0;i<nbToReloc;i++)
 	{
@@ -568,55 +569,53 @@ static void relocZone(MemZone *Zone,  MemZone *EnsZones) {
 	      V=A+S;
 	      INFO_MSG("V =  0x%x", V);
 	      CutWord(V,&b1,&b2,&b3,&b4);
-	      P=sectionareloger->startAddress+p_relocinfo[i].r_offset;
-	      sectionareloger->data[P]=b1;	      	      
-	      sectionareloger->data[P+1]=b2;
-	      sectionareloger->data[P+2]=b3;
-	      sectionareloger->data[P+3]=b4;
+	      P=p_relocinfo[i].r_offset;
+	      sectionareloger->data[P]=b4;	      	      
+	      sectionareloger->data[P+1]=b3;
+	      sectionareloger->data[P+2]=b2;
+	      sectionareloger->data[P+3]=b1;
 
 	      break;
 	      
 	    /* R_MIPS_26 */
 	  case 4:
 	      A=getwordBis(p_relocinfo[i].r_offset,sectionareloger);
-	      V= ((A<<2)|((P&0xf0000000)+S))>>2;
+	      V= (((A&0x03FFFFFF)<<2)|((P&0xf0000000)+S))>>2;
 	      INFO_MSG("A =  0x%x", A);
 	      INFO_MSG("V =  0x%x", V);
-	      CutWord(V,&b1,&b2,&b3,&b4);
-	      P=sectionareloger->startAddress+p_relocinfo[i].r_offset;
-	      sectionareloger->data[P]=b1;	      	      
-	      sectionareloger->data[P+1]=b2;
-	      sectionareloger->data[P+2]=b3;
-	      sectionareloger->data[P+3]=b4;
+	      CutWord(V|(A&0xFC000000),&b1,&b2,&b3,&b4);
+	      P=p_relocinfo[i].r_offset;
+	      INFO_MSG("P =  0x%x", P);
+	      sectionareloger->data[P]=b4;	      	      
+	      sectionareloger->data[P+1]=b3;
+	      sectionareloger->data[P+2]=b2;
+	      sectionareloger->data[P+3]=b1;
 	      break;
 	      
-	    /* R_MIPS_HI16*/
+	    /* R_MIPS_HI16 & R_MIPS_LO16*/
 	   case 5:
 	      
 	     AHI=getwordBis(p_relocinfo[i].r_offset,sectionareloger);
-	     AHL=(AHI<<16)+(short)ALO;
+	     PHI=p_relocinfo[i].r_offset;
+	     i++;
+	     ALO=getwordBis(p_relocinfo[i].r_offset,sectionareloger);
+	     PLO=p_relocinfo[i].r_offset;
+
+	     AHL=((AHI&0x0000FFFF)<<16)+(short)(ALO&0x0000FFFF);
 	     V=(AHL+S-(short)AHL+S)>>16;
-	     CutWord(V,&b1,&b2,&b3,&b4);
-	      P=sectionareloger->startAddress+p_relocinfo[i].r_offset;
-	       sectionareloger->data[P]=b1;	      	      
-	      sectionareloger->data[P+1]=b2;
-	      sectionareloger->data[P+2]=b3;
-	      sectionareloger->data[P+3]=b4;
-	      break;
-	      
-	      
-	      /* R_MIPS_LO16*/
-	  case 6:
-	    ALO=getwordBis(p_relocinfo[i].r_offset,sectionareloger);
-	    V=AHL+S;
-	    
-	      CutWord(V,&b1,&b2,&b3,&b4);
-	      P=sectionareloger->startAddress+p_relocinfo[i].r_offset;
-	      sectionareloger->data[P]=b1;	      	      
-	      sectionareloger->data[P+1]=b2;
-	      sectionareloger->data[P+2]=b3;
-	      sectionareloger->data[P+3]=b4;
-	      break;
+	     CutWord(V|(AHI&0xFFFF0000),&b1,&b2,&b3,&b4);
+	     sectionareloger->data[PHI]=b4;	      	      
+	     sectionareloger->data[PHI+1]=b3;
+	     sectionareloger->data[PHI+2]=b2;
+	     sectionareloger->data[PHI+3]=b1;
+	     V=AHL+S;
+	     CutWord(V|(ALO&0xFFFF0000),&b1,&b2,&b3,&b4);
+	     sectionareloger->data[PLO]=b4;	      	      
+	     sectionareloger->data[PLO+1]=b3;
+	     sectionareloger->data[PLO+2]=b2;
+	     sectionareloger->data[PLO+3]=b1;
+	     break;
+	     
 	      
 	    default:
 	      fprintf(stdout, "Ce type de relocation n'est pas gérée dans ce projet\n");

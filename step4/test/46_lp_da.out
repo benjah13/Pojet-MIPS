@@ -17,4 +17,8 @@ Table des symboles .text .data .bss .reginfo .pdr X Tab
  00002004:	00 00 00 00 
  00002008:	00 00 00 00 
 
-00000000:	ADDI	$t0, $t0, 17
+
+	Disassembly of section .text
+
+00000000
+      00: 21080011	ADDI	$t0, $t0, 17 

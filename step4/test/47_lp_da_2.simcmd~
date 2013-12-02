@@ -1,4 +1,4 @@
 #Commande a lancer dans le script 47_lp_da_2
 
-lp exempleELF.o
+lp mult.o
 da 0x0:10

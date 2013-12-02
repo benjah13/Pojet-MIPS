@@ -154,15 +154,19 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch){
 
 	unsigned int i=0,j=addr;
 	unsigned int nb_int=0;
-	
 
+	printf("\n\tDisassembly of section .text\n\n%08x\n",addr);
+	
 	/* Boucle sur le nb d'instructions à désassembler */
 	while(i<nbr_instr && j<arch->segment[TEXT].startAddress+arch->segment[TEXT].size){
 
 		nb_int=getword(addr+4*i,arch);
 
-		//fprintf(stdout,"String to disassemble base 10 : %ld\n",nb_int);
-		
+		if(getAddressName(addr+4*i)!=NULL)
+		{
+		printf("\n%08x <%s>\n",addr+4*i,getAddressName(addr+4*i));
+		}
+
 		unsigned int k=0;
 
 		/* Affichage de la chaîne binaire */
@@ -210,7 +214,7 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch){
 		
 		/* Si l'opcode n'est pas connu */
 		if(instr==NULL){
-			fprintf(stdout,"%08x:	",addr+4*i);
+			fprintf(stdout,"      %02x: %08x\t",addr+4*i,nb_int);
 			fprintf(stdout,"Unknown instruction\n");
 			}
 		else{
@@ -222,13 +226,13 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch){
 		FILE* f=fopen(filename,"r");
 
 		if(strcmp("SLL",instr)==0 && strcmp(arch->reg[rd].mnemo,"zero")==0 && strcmp(arch->reg[rt].mnemo,"zero")==0 && sa==0){
-			fprintf(stdout,"%08x:	",addr+4*i);
+			fprintf(stdout,"      %02x: %08x\t",addr+4*i,nb_int);
 			fprintf(stdout,"NOP");
 			}
 
 		else{
 		/* Affichage de la commande */
-		fprintf(stdout,"%08x:	%s	",addr+4*i,instr);
+		fprintf(stdout,"      %02x: %08x\t%s\t",addr+4*i,nb_int,instr);
 
 		do{
 
@@ -242,11 +246,13 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch){
 		else if(strcmp("rt,",arg)==0){fprintf(stdout,"$%s, ",arch->reg[rt].mnemo);}
 		else if(strcmp("rd",arg)==0){fprintf(stdout,"$%s ",arch->reg[rd].mnemo);}
 		else if(strcmp("rd,",arg)==0){fprintf(stdout,"$%s, ",arch->reg[rd].mnemo);}
-		else if(strcmp("sa",arg)==0){fprintf(stdout,"%d",sa);}
-		else if(strcmp("offset",arg)==0){fprintf(stdout,"%d",attribut);}
-		else if(strcmp("offset(base)",arg)==0){fprintf(stdout,"%d(%d)",attribut,rs);}
-		else if(strcmp("immediate",arg)==0){fprintf(stdout,"%d",(int16_t)attribut);}
-		else if(strcmp("target",arg)==0){fprintf(stdout,"%d",target);}
+		else if(strcmp("sa",arg)==0){fprintf(stdout,"%d ",sa);}
+		else if(strcmp("offset",arg)==0){fprintf(stdout,"%x ",attribut);}
+		else if(strcmp("offset(base)",arg)==0){fprintf(stdout,"%x($%s)",attribut,arch->reg[rs].mnemo);}
+		else if(strcmp("immediate",arg)==0){fprintf(stdout,"%d ",(int16_t)attribut);}
+		else if(strcmp("target",arg)==0){fprintf(stdout,"%d ",target);}
+		else if(strcmp("<branch>",arg)==0){fprintf(stdout,"<%s>",getAddressName(addr+4*i+(attribut<<2)+4));}
+		else if(strcmp("<jump>",arg)==0){fprintf(stdout,"<%s>",getAddressName(attribut<<2));}
 		}
 
 		while(!feof(f));
@@ -266,6 +272,9 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch){
 
 		}
 	
+	if(j == arch->segment[TEXT].startAddress+arch->segment[TEXT].size)
+	  printf("\n\tEnd of section .text\n\n");
+
 	return CMD_OK_RETURN_VALUE;
 
 }

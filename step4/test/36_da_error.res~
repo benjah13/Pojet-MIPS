@@ -3,4 +3,7 @@
 
 00000000
       00: 00000000	NOP
+
+	End of section .text
+
 Invalid param : hexadecimal number awaited in 'ae1v'
