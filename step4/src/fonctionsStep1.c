@@ -172,7 +172,15 @@ int execute_cmd_lm(unsigned int adr, unsigned int val, mips* arch)
 	arch->segment[TEXT].data[addr_in_block] = val;
 	fprintf(stdout,"The value %x has been loaded in the address 0x%x\n", val,adr);
 	break;
+	
+	
+	case STACK:
+	fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
+	break;
+
 	}
+	
+
 	return CMD_OK_RETURN_VALUE;
 }
 
