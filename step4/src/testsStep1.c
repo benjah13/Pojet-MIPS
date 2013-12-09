@@ -45,7 +45,7 @@ int test_registre(char* input){
 
 	else if((input[2]=='3'&&input[3]=='1'&&(input[3]=='\0'||input[3]=='\n'))||(input[2]=='r'&& input[3]=='a'&&(input[4]=='\0'||input[4]=='\n'))||(input[1]=='3'&&input[2]=='1'&&(input[3]=='\0'||input[3]=='\n'))|| (input[1]=='r'&&input[2]=='a'&&(input[3]=='\0'||input[3]=='\n'))){return 31;}
 
-	else if((input[2]=='3'&&input[3]=='2'&&(input[3]=='\0'||input[3]=='\n'))||(input[2]=='P'&& input[3]=='C'&&(input[4]=='\0'||input[4]=='\n'))||(input[1]=='3'&&input[2]=='2'&&(input[3]=='\0'||input[3]=='\n'))|| (input[1]=='P'&&input[2]=='C'&&(input[3]=='\0'||input[3]=='\n'))){return 32;}
+	else if((input[2]=='3'&&input[3]=='2'&&(input[3]=='\0'||input[3]=='\n'))||(input[2]=='P'&& input[3]=='C'&&(input[4]=='\0'||input[4]=='\n'))||(input[1]=='3'&&input[2]=='2'&&(input[3]=='\0'||input[3]=='\n'))|| (input[1]=='p'&&input[2]=='c'&&(input[3]=='\0'||input[3]=='\n'))){return 32;}
 
 	else if((input[2]=='3'&&input[3]=='3'&&(input[3]=='\0'||input[3]=='\n'))||(input[2]=='H'&& input[3]=='I'&&(input[4]=='\0'||input[4]=='\n'))||(input[1]=='3'&&input[2]=='3'&&(input[3]=='\0'||input[3]=='\n'))|| (input[1]=='H'&&input[2]=='I'&&(input[3]=='\0'||input[3]=='\n'))){return 33;}
 
@@ -147,6 +147,13 @@ int test_memoire(mips* arch, unsigned int adresse, unsigned int* addr_in_block){
 	*addr_in_block=adresse-arch->segment[DATA].startAddress;
 	return DATA;
 	}
+
+	if(adresse<arch->segment[STACK].startAddress+arch->segment[STACK].size && adresse>=arch->segment[STACK].startAddress){
+	*addr_in_block=adresse-arch->segment[STACK].startAddress;
+	return STACK;
+	}
+
+
 
 	else {return -1;}
 

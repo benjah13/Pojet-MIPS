@@ -364,8 +364,6 @@ int execute_cmd_db(char* input, Liste_Bp* liste){
 		i++;
 		}
 
-	free(actuel);
-
 	return CMD_OK_RETURN_VALUE;
 
 	}

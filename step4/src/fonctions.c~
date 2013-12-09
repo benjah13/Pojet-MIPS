@@ -64,14 +64,22 @@ int parse_and_execute_cmd_testcmd(char* paramsStr, mips* arch){
 /* EXECUTE EXIT */
 int execute_cmd_exit(mips* arch){
 
-	INFO_MSG("\n\n\n\n \t\t\tBYE BYE !\n\n\n\n");
+	INFO_MSG("Bye bye !");
+
+	int i=0;
 
 	/* liberation des espaces memoires */
 	/* liberation des segments memoire */
-	free(arch->segment[TEXT].data);
-	free(arch->segment[DATA].data);
-	free(arch->segment[BSS].data);
-	
+	free(arch->segment[TEXT]);
+	free(arch->segment[DATA]);
+	free(arch->segment[BSS]);
+	free(arch->segment[STACK]);
+
+	/* liberation des registres */
+	for(i=0;i<36;i++)
+	{
+		free(arch->reg[i].mnemo);
+	}
 
 
 	return CMD_EXIT_RETURN_VALUE;

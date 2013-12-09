@@ -298,9 +298,9 @@ int execute_cmd_da(unsigned int addr, unsigned int nbr_instr, mips* arch)
 	return CMD_OK_RETURN_VALUE;
 }
 
-/*********************************************/ 
-/********* FONCTIONS LOAD PROGRAM ************/ 
-/*********************************************/
+/**************************************/ 
+/***** FONCTIONS LOAD PROGRAM *********/ 
+/*************************************/
 
 /* fonction parse_and_execute_cmd_lp */
 

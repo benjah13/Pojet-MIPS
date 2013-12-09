@@ -4,6 +4,7 @@
 #define DATA 0
 #define TEXT 1
 #define BSS  2
+#define STACK 3
 
 /******************
 Structure du MIPS
@@ -19,12 +20,12 @@ Structure du MIPS
 typedef struct {
 	unsigned int indice;
 	char* mnemo;
-	unsigned int val;
+	int val;
 	} registre;
 
 typedef struct {
 	registre reg[36];
-	SectionELF segment[3]; 
+	SectionELF segment[4];
 	} mips;
 
 #endif

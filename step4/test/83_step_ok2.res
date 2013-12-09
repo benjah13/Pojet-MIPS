@@ -31,7 +31,6 @@ Table des symboles .text .data .bss .reginfo .pdr _start procedure OK KO
 0x00000028:	JR	$ra
 
 0x00000010:	NOP
-0x00000018:	NOP
-0x0000001c:	J	48	<KO>
+0x00000014:	BEQ	$t1	$t2	20	<OK>
 
-0x00000030:	NOP
+0x0000002c:	NOP

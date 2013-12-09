@@ -1,6 +1,9 @@
 #ifndef __FONCTIONS_STEP_2__
 #define __FONCTIONS_STEP_2__
 
+/* INITSTACK */
+void initStack(mips* arch);
+
 /* GETBITS */
 unsigned int getbits(unsigned int val, unsigned int start, unsigned int stop);
 

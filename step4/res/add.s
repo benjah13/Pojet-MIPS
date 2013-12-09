@@ -1,8 +1,8 @@
 ## Test de add
  
 .text
-add $8, $8, $9 		# ajoute 17 au registre 8
-add $8, $24, $12	# ajoute 18 au registre 8
+addi $8, $8, 0x12
+add $8, $9
 nop
 
 .bss

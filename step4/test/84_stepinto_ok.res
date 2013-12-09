@@ -27,5 +27,4 @@ Table des symboles .text .data .bss .reginfo .pdr _start procedure OK KO
 0x00000008:	SLL	$t1	$t1	2
 0x0000000c:	JAL	36	<procedure>
 
-0x00000028:	JR	$ra
-
+0x00000024:	SRL	$t1	$t1	2
