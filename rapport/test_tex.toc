@@ -1,0 +1,38 @@
+\select@language {french}
+\contentsline {paragraph}{}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {chapter}{\numberline {1}1er Incr\IeC {\'e}ment}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {section}{\numberline {1.1}Mise en place du projet}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {section}{\numberline {1.2}Ce que nous avons fait}{3}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {section}{\numberline {1.3}Ce qu'il reste \IeC {\`a} faire}{4}
+\contentsline {section}{\numberline {1.4}Conclusion}{4}
+\contentsline {chapter}{\numberline {2}2\IeC {\`e}me incr\IeC {\'e}ment}{5}
+\contentsline {section}{\numberline {2.1}R\IeC {\'e}partition du travail}{5}
+\contentsline {section}{\numberline {2.2}LP et DA}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {section}{\numberline {2.3}Ce qu'il reste \IeC {\`a} faire}{6}
+\contentsline {section}{\numberline {2.4}Conclusion}{6}
+\contentsline {chapter}{\numberline {3}3\IeC {\`e}me incr\IeC {\'e}ment}{7}
+\contentsline {chapter}{\numberline {4}4\IeC {\`e}me incr\IeC {\'e}ment}{8}
+\contentsline {paragraph}{}{8}
+\contentsline {section}{\numberline {4.1}relocation}{8}
+\contentsline {section}{\numberline {4.2}Nettoyage du code et am\IeC {\'e}lioaration}{8}
+\contentsline {paragraph}{D}{8}
+\contentsline {paragraph}{E}{9}
+\contentsline {section}{\numberline {4.3}Conclusion}{9}
+\contentsline {paragraph}{C}{9}
+\contentsline {chapter}{\numberline {5}Retour sur l'organisation du projet}{10}

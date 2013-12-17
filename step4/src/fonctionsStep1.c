@@ -48,6 +48,7 @@ void init_mips(mips* arch)
 	init_segment(&arch->segment[DATA], DATA);
 	init_segment(&arch->segment[TEXT], TEXT);
 	init_segment(&arch->segment[BSS], BSS);
+	init_segment(&arch->segment[STACK], STACK);
 
 	/* initialisation des registres */
 	int i;
@@ -101,18 +102,18 @@ void init_segment(SectionELF* seg, int type){
 
 	switch(type)
 	{
-		case DATA:
-		seg->startAddress=400;
+		case TEXT:
+		seg->startAddress=0;
 		seg->size=100;
 		seg->data=malloc((seg->size)*sizeof(BYTE));
-	
+		
 		for(i=0;i<seg->size;i++)
 		{
 			seg->data[i]=0x00;
 		}
 		break;
-
-		case BSS:
+	
+		case DATA:
 		seg->startAddress=200;
 		seg->size=100;
 		seg->data=malloc((seg->size)*sizeof(BYTE));
@@ -123,8 +124,19 @@ void init_segment(SectionELF* seg, int type){
 		}
 		break;
 
-		case TEXT:
-		seg->startAddress=0;
+		case BSS:
+		seg->startAddress=400;
+		seg->size=100;
+		seg->data=malloc((seg->size)*sizeof(BYTE));
+	
+		for(i=0;i<seg->size;i++)
+		{
+			seg->data[i]=0x00;
+		}
+		break;
+
+		case STACK:
+		seg->startAddress=600;
 		seg->size=100;
 		seg->data=malloc((seg->size)*sizeof(BYTE));
 		
@@ -173,9 +185,8 @@ int execute_cmd_lm(unsigned int adr, unsigned int val, mips* arch)
 	fprintf(stdout,"The value %x has been loaded in the address 0x%x\n", val,adr);
 	break;
 	
-	
 	case STACK:
-	fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
+	fprintf(stdout,"Warning : This address is in the stack!\n");
 	break;
 
 	}
@@ -433,87 +444,131 @@ int parse_and_execute_cmd_dm(char *paramsStr, mips* arch)
 	
 	pch=strtok(paramsStr," ");
 	/* Test de la presence d'arguments*/
-	if(pch==NULL){
-	 fprintf(stdout,"Too few arguments\n");
-	return 2;
+	if(pch==NULL)
+	{
+		fprintf(stdout,"Too few arguments\n");
+		return 2;
 	}
 	
-	else if(pch[0]=='0' && pch[1]=='x'){
+	else if(pch[0]=='0' && pch[1]=='x')
+	{
 		pch=pch+2;
-		}	
-	else{fprintf(stdout,"Error : An Hexadecimal should start by '0x'\n"); return 2;}
+	}	
+	
+	else
+	{
+		fprintf(stdout,"Error : An Hexadecimal should start by '0x'\n");
+		return 2;
+	}
 
 	/* définition du cas et du séparateur */
-	if(strchr(pch,':')!=NULL){separators=":"; cas=1;}
-	else if(strchr(pch,'~')!=NULL){separators="~"; cas=2;}
-	else {cas=3;}
+	if(strchr(pch,':')!=NULL)
+	{
+		separators=":";
+		cas=1;
+	}
+
+	else if(strchr(pch,'~')!=NULL)
+	{
+		separators="~";
+		cas=2;
+	}
+
+	else
+	{
+		cas=3;
+	}
 
 	/* parsing de l'adresse */
 	pch=strtok(pch,separators);
 	/* test longueur de l'argument 1 */
-	if (strlen(pch)>8) { 
+	if(strlen(pch)>8)
+	{ 
 		fprintf(stdout,"Argument too long\n");
 		return 2;
-		}
+	}
+
 	/* test base 16 */
-	while(i!=strlen(pch)){	
-		if(!isxdigit(pch[i])){
+	while(i!=strlen(pch))
+	{
+		if(!isxdigit(pch[i]))
+		{
 			fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
 			return 2;
-			}
-		i++;
 		}
+
+		i++;
+	}
+
 	/* si l'adresse est bien en héxadécimal */
 	i=0;
 	arg1=(unsigned int)strtol(pch,NULL,16);
-	if(test_memoire(arch,arg1,&addr_in_block)<0){
+	if(test_memoire(arch,arg1,&addr_in_block)<0)
+	{
 		fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
 		return 2;
-		}
+	}
+
 	pch=strtok(NULL,separators);
 	  	
-	switch(cas){
+	switch(cas)
+	{
 	
-	case 0:
-	break;
+		case 0:
+		break;
 
-	case 1:
-	/* séparateur ':' */
-	while(pch[i]!='\0' && pch[i]!='\n'){	
-		if(!isdigit(pch[i])){
-			fprintf(stdout,"Invalid param : decimal number awaited in '%s'\n", pch);
-			return 2;
+		case 1:
+		/* séparateur ':' */
+		while(pch[i]!='\0' && pch[i]!='\n')
+		{	
+			if(!isdigit(pch[i]))
+			{
+				fprintf(stdout,"Invalid param : decimal number awaited in '%s'\n", pch);
+				return 2;
 			}
-		i++;
-		}
-	arg2=(unsigned int)strtol(pch,NULL,10);
-	break;	
 	
-	case 2:
-	/* séparateur '~' */
-	if(pch[0]=='0' && pch[1]=='x'){
-		pch=pch+2;
+			i++;
 		}
-	else{fprintf(stdout,"Error : An Hexadecimal should start by '0x'\n"); return 2;}
+
+		arg2=(unsigned int)strtol(pch,NULL,10);
+		break;	
+	
+		case 2:
+		/* séparateur '~' */
+		if(pch[0]=='0' && pch[1]=='x')
+		{
+			pch=pch+2;
+		}
+
+		else
+		{
+			fprintf(stdout,"Error : An Hexadecimal should start by '0x'\n"); 				return 2;
+		}
 
 	
-	while(pch[i]!='\0' && pch[i]!='\n'){
-		if(!isxdigit(pch[i])){
-			fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
-			return 2;
+		while(pch[i]!='\0' && pch[i]!='\n')
+		{
+			if(!isxdigit(pch[i]))
+			{
+				fprintf(stdout,"Invalid param : hexadecimal number awaited in '%s'\n", pch);
+				return 2;
 			}
-		i++;
+		
+			i++;
 		}
-	arg2=(unsigned int)strtol(pch,NULL,16);
-	/* test arg2>arg1 */
-	if(arg2<arg1){
-		fprintf(stdout,"Invalid param : arg2 lower than arg1\n");
-		return 2;
-		}
-	break;
 
-	default:
-	break;
+		arg2=(unsigned int)strtol(pch,NULL,16);
+		/* test arg2>arg1 */
+		if(arg2<arg1)
+		{
+			fprintf(stdout,"Invalid param : arg2 lower than arg1\n");
+			return 2;
+		}
+
+		break;
+
+		default:
+		break;
 	}
 
 	return execute_cmd_dm(cas,arg1,arg2,arch);

@@ -131,36 +131,45 @@ int test_registre(char* input){
 }
 
 /* FONCTION TEST MEMOIRE */
-int test_memoire(mips* arch, unsigned int adresse, unsigned int* addr_in_block){
-	
-	if(adresse<arch->segment[BSS].startAddress+arch->segment[BSS].size && adresse>=arch->segment[BSS].startAddress){
-	*addr_in_block=adresse-arch->segment[BSS].startAddress;
-	return BSS;
+int test_memoire(mips* arch, unsigned int adresse, unsigned int* addr_in_block)
+{	
+	if(adresse<arch->segment[BSS].startAddress+arch->segment[BSS].size && adresse>=arch->segment[BSS].startAddress)
+	{
+		*addr_in_block=adresse-arch->segment[BSS].startAddress;
+		return BSS;
 	}
 
-	if(adresse<arch->segment[TEXT].startAddress+arch->segment[TEXT].size && adresse>=arch->segment[TEXT].startAddress){
-	*addr_in_block=adresse-arch->segment[TEXT].startAddress;
-	return TEXT;
+	if(adresse<arch->segment[TEXT].startAddress+arch->segment[TEXT].size && adresse>=arch->segment[TEXT].startAddress)
+	{
+		*addr_in_block=adresse-arch->segment[TEXT].startAddress;
+		return TEXT;
 	}	
 	
-	if(adresse<arch->segment[DATA].startAddress+arch->segment[DATA].size && adresse>=arch->segment[DATA].startAddress){
-	*addr_in_block=adresse-arch->segment[DATA].startAddress;
-	return DATA;
+	if(adresse<arch->segment[DATA].startAddress+arch->segment[DATA].size && adresse>=arch->segment[DATA].startAddress)
+	{
+		*addr_in_block=adresse-arch->segment[DATA].startAddress;
+		return DATA;
 	}
 
-	if(adresse<arch->segment[STACK].startAddress+arch->segment[STACK].size && adresse>=arch->segment[STACK].startAddress){
-	*addr_in_block=adresse-arch->segment[STACK].startAddress;
-	return STACK;
+	if(adresse<arch->segment[STACK].startAddress+arch->segment[STACK].size && adresse>=arch->segment[STACK].startAddress)
+	{
+		*addr_in_block=adresse-arch->segment[STACK].startAddress;
+		return STACK;
 	}
 
-
-
-	else {return -1;}
-
+	else
+	{
+		return -1;
+	}
 }
 
 /* FONCTION TEST VALEUR */
-int test_valeur(unsigned int val){
-	if(val>255){return -1;}
-    else return 1;
+int test_valeur(unsigned int val)
+{
+	if(val>255)
+	{
+		return -1;
 	}
+
+	else return 1;
+}

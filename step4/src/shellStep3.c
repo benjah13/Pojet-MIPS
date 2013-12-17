@@ -314,11 +314,11 @@ int parse_and_execute_cmd_bp(char* input, mips* arch ,Liste_Bp* liste){
 		return 2;
 		}
 	
-	if(test_memoire(arch,arg1,&addr_in_block)<0){
-		fprintf(stdout,"Warning : The address is not allocated for the simulator!\n");
+	if(test_memoire(arch,arg1,&addr_in_block)!=TEXT){
+		fprintf(stdout,"Warning : The address is not in the TEXT section!\n");
 		return 2;
 		}
-
+	
 	return execute_cmd_bp(arg1,arch,liste); 
   
 	}

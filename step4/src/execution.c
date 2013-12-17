@@ -99,9 +99,38 @@ void setRegister(uint32_t indice, uint32_t valeur, mips* arch)
 }
 
 /* signal exceptions - overflows, syscalls... */
-void SignalException(char* error,mips* arch)
+void SignalException(char* error, mips* arch)
 {
 	WARNING_MSG("%s",error);	
+}
+
+/* gestion des drapeaux */
+void FlagSetting(int64_t result, mips* arch)
+{
+	/* gestion de la retenue */
+	if((result&0x100000000)!=0)
+	{
+		INFO_MSG("Carry Flag On");
+		/* allumage du bit 1 du registre SR */
+		setRegister(35,arch->reg[35].val|0x1,arch);
+	}
+
+	/* gestion du zéro */
+	if(result==0)
+	{
+		INFO_MSG("Zero Flag On");
+		/* allumage du bit 6 du registre SR */
+		setRegister(35,arch->reg[35].val|0x20,arch);
+	}
+		
+	/* gestion du signe */
+	if((((int32_t)result)&0x80000000)!=0)
+	{
+		INFO_MSG("Sign Flag On");
+		/* allumage du bit 7 du registre SR si result < 0 */
+		setRegister(35,arch->reg[35].val|0x40,arch);
+	}
+
 }
 
 /********************************************************************************************
@@ -127,14 +156,21 @@ void execute_add(int word, mips* arch)
 	fprintf(stdout,"0x%08x:\tADD\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
 
 	/* test de l'overflow */
-	if(temp!=(int32_t)temp){
+	if(temp!=(int32_t)temp)
+	{
 		SignalException("Integer Overflow",arch);
-		/* allumage du bit 11 du registre 35 */
-		setRegister(35,arch->reg[35].val|0x400,arch);
-		}
+		/* allumage du bit 11 du registre SR */
+		setRegister(35,arch->reg[35].val|0x800,arch);
+	}
 
 	/* écriture dans le registre destination */
-	else{setRegister(rd,(int32_t)temp,arch);}
+	else
+	{
+		setRegister(rd,(int32_t)temp,arch);	
+	}
+
+	/* gestion des autres drapeaux */
+	FlagSetting(temp,arch);
 }
 
 void execute_addi(int word, mips* arch)
@@ -160,14 +196,21 @@ void execute_addi(int word, mips* arch)
 	fprintf(stdout,"0x%08x:\tADDI\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rt].mnemo,arch->reg[rs].mnemo,(int16_t)immediate);
 
 	/* test de l'overflow */
-	if(temp!=(int32_t)temp){
+	if(temp!=(int32_t)temp)
+	{
 		SignalException("Integer Overflow",arch);
 		/* allumage du bit 11 du registre 35 */
-		setRegister(35,arch->reg[35].val|0x400,arch);
-		}
+		setRegister(35,arch->reg[35].val|0x800,arch);
+	}
 
 	/* écriture dans le registre destination */
-	else{setRegister(rt,(int32_t)temp,arch);}
+	else
+	{
+		setRegister(rt,(int32_t)temp,arch);
+	}
+	
+	/* gestion des autres drapeaux */
+	FlagSetting(temp,arch);
 }
 
 void execute_and(int word, mips* arch)
@@ -187,6 +230,9 @@ void execute_and(int word, mips* arch)
 
 	/* exécution de l'instruction */
 	setRegister(rd,(arch->reg[rs].val)&(arch->reg[rt].val),arch);
+
+	/* gestion des drapeaux */
+	FlagSetting(rd,arch);
 }
 
 void execute_beq(int word, mips* arch)
@@ -208,9 +254,10 @@ void execute_beq(int word, mips* arch)
 	/* affichage instruction */
 	fprintf(stdout,"0x%08x:\tBEQ\t$%s\t$%s\t%d\t<%s>\n\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo,offset,getAddressName(arch->reg[32].val+offset+4));
 
-	if(arch->reg[rs].val==arch->reg[rt].val){
+	if(arch->reg[rs].val==arch->reg[rt].val)
+	{
 		arch->reg[32].val=arch->reg[32].val+offset;
-		}
+	}
 }
 
 void execute_bgtz(int word, mips* arch)
@@ -231,9 +278,10 @@ void execute_bgtz(int word, mips* arch)
 	/* affichage instruction */	
 	fprintf(stdout,"0x%08x:\tBGTZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
 
-	if(arch->reg[rs].val>0){
+	if(arch->reg[rs].val>0)
+	{
 		setRegister(32,arch->reg[32].val+offset,arch);
-		}
+	}
 }
 
 void execute_blez(int word, mips* arch)
@@ -254,9 +302,10 @@ void execute_blez(int word, mips* arch)
 	/* affichage instruction */		
 	fprintf(stdout,"0x%08x:\tBLEZ\t$%s\t%d\n",arch->reg[32].val,arch->reg[rs].mnemo,offset);
 
-	if(arch->reg[rs].val<=0){
+	if(arch->reg[rs].val<=0)
+	{
 		setRegister(32,arch->reg[32].val+offset,arch);
-		}
+	}
 }
 
 void execute_bne(int word, mips* arch)
@@ -280,7 +329,7 @@ void execute_bne(int word, mips* arch)
 
 	if(arch->reg[rs].val!=arch->reg[rt].val)
 	{
-	setRegister(32,arch->reg[32].val+offset,arch);
+		setRegister(32,arch->reg[32].val+offset,arch);
 	}
 }
 
@@ -294,6 +343,14 @@ void execute_div(int word, mips* arch)
 	unsigned int rs=0,rt=0;
 	rt=getbits(instr,16,20);
 	rs=getbits(instr,21,25);
+	
+	/* drapeau division par zéro */
+	if(arch->reg[rt].val==0)
+	{
+		INFO_MSG("Division by zero Flag On");
+		/* allumage du bit 12 du registre SR */
+		setRegister(35,arch->reg[35].val|0x1000,arch);
+	}
 
 	/* affichage instruction */	
 	fprintf(stdout,"0x%08x:\tDIV\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
@@ -301,6 +358,9 @@ void execute_div(int word, mips* arch)
 	/* exécution de l'instruction */	
 	setRegister(34,arch->reg[rs].val/arch->reg[rt].val,arch);
 	setRegister(33,arch->reg[rs].val%arch->reg[rt].val,arch);
+
+	/* gestion des autres drapeaux */
+	FlagSetting(arch->reg[34].val,arch);
 }
 
 void execute_j(int word, mips* arch)
@@ -395,52 +455,54 @@ void execute_lw(int word, mips* arch)
 	fprintf(stdout,"0x%08x:\tLW\t$%s\t%d(%s)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,arch->reg[base].mnemo);
 
 	/* exécution de l'instruction */
-	if((arch->reg[base].val+offset)%4!=0){
+	if((arch->reg[base].val+offset)%4!=0)
+	{
 		SignalException("Address Error",arch);
-		}
-	else{
+	}
+
+	else
+	{
 		int tm=0;
 		unsigned int addr_in_block;
 		tm=test_memoire(arch,arch->reg[base].val+offset,&addr_in_block);
 		int word2load=0;
 	
-		switch(tm){
-		
-		case -1:
-		WARNING_MSG("This address is not allocated for the simulator");
-		break;
+		switch(tm)
+		{
+			case -1:
+			WARNING_MSG("This address is not allocated for the simulator");
+			break;
 	
-		case BSS:
-		word2load=arch->segment[BSS].data[addr_in_block];
-		word2load=word2load<<8;
-		word2load=word2load+arch->segment[BSS].data[addr_in_block+1];
-		setRegister(rt,word2load,arch);
-		break;
+			case BSS:
+			word2load=arch->segment[BSS].data[addr_in_block];
+			word2load=word2load<<8;
+			word2load=word2load+arch->segment[BSS].data[addr_in_block+1];
+			setRegister(rt,word2load,arch);
+			break;
 
-		case TEXT:
-		word2load=arch->segment[TEXT].data[addr_in_block];
-		word2load=word2load<<8;
-		word2load=word2load+arch->segment[TEXT].data[addr_in_block+1];
-		setRegister(rt,word2load,arch);
-		break;
-		
-		case DATA:
-		word2load=arch->segment[DATA].data[addr_in_block];
-		word2load=word2load<<8;
-		word2load=word2load+arch->segment[DATA].data[addr_in_block+1];
-		setRegister(rt,word2load,arch);
-		break;
+			case TEXT:
+			word2load=arch->segment[TEXT].data[addr_in_block];
+			word2load=word2load<<8;
+			word2load=word2load+arch->segment[TEXT].data[addr_in_block+1];
+			setRegister(rt,word2load,arch);
+			break;
+			
+			case DATA:
+			word2load=arch->segment[DATA].data[addr_in_block];
+			word2load=word2load<<8;
+			word2load=word2load+arch->segment[DATA].data[addr_in_block+1];
+			setRegister(rt,word2load,arch);
+			break;
 
-		case STACK:
-		word2load=arch->segment[STACK].data[addr_in_block];
-		word2load=word2load<<8;
-		word2load=word2load+arch->segment[STACK].data[addr_in_block+1];
-		setRegister(rt,word2load,arch);
-		break;
-
-			}
-
+			case STACK:
+			word2load=arch->segment[STACK].data[addr_in_block];
+			word2load=word2load<<8;
+			word2load=word2load+arch->segment[STACK].data[addr_in_block+1];
+			setRegister(rt,word2load,arch);
+			break;
 		}
+
+	}
 }
 
 void execute_mfhi(int word, mips* arch)
@@ -533,6 +595,9 @@ void execute_or(int word, mips* arch)
 
 	/* exécution de l'instruction */
 	setRegister(rd,arch->reg[rs].val|arch->reg[rt].val,arch);
+	
+	/* gestion des drapeaux */
+	FlagSetting(rd,arch);
 }
 
 void execute_rotr(int word, mips* arch)
@@ -560,6 +625,9 @@ void execute_rotr(int word, mips* arch)
 	temprtl=arch->reg[rt].val&(0xFFFFFFFF>>(32-sa));
 	
 	setRegister(rd,templtr+temprtl,arch);
+
+	/* gestion des drapeaux */
+	FlagSetting(rd,arch);
 }
 
 void execute_sll(int word, mips* arch)
@@ -577,16 +645,21 @@ void execute_sll(int word, mips* arch)
 	sa=sa%32;
 
 	/* test NOP */
-	if(rd==0 && rt==0 && sa==0){fprintf(stdout,"0x%08x:\tNOP\n",arch->reg[32].val);}
+	if(rd==0 && rt==0 && sa==0)
+	{
+		fprintf(stdout,"0x%08x:\tNOP\n",arch->reg[32].val);
+	}
 
-	else{
-	
-	/* affichage instruction */
-	fprintf(stdout,"0x%08x:\tSLL\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rt].mnemo,sa);
+	else
+	{	
+		/* affichage instruction */
+		fprintf(stdout,"0x%08x:\tSLL\t$%s\t$%s\t%d\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rt].mnemo,sa);
 
-	/* exécution de l'instruction */
-	setRegister(rd,arch->reg[rt].val<<sa,arch);
+		/* exécution de l'instruction */
+		setRegister(rd,arch->reg[rt].val<<sa,arch);
 
+		/* gestion des drapeaux */
+		FlagSetting(rd,arch);
 	}
 }
 
@@ -606,8 +679,15 @@ void execute_slt(int word, mips* arch)
 	fprintf(stdout,"0x%08x:\tSLT\t$%s\t$%s\t$%s\n",arch->reg[32].val,arch->reg[rd].mnemo,arch->reg[rs].mnemo,arch->reg[rt].mnemo);
 
 	/* exécution de l'instruction */
-	if(arch->reg[rs].val<arch->reg[rt].val){setRegister(rd,1,arch);}
-	else{setRegister(rd,0,arch);}
+	if(arch->reg[rs].val<arch->reg[rt].val)
+	{
+		setRegister(rd,1,arch);
+	}
+	
+	else
+	{
+		setRegister(rd,0,arch);
+	}
 }
 
 void execute_srl(int word, mips* arch)
@@ -629,6 +709,9 @@ void execute_srl(int word, mips* arch)
 
 	/* exécution de l'instruction */
 	setRegister(rd,arch->reg[rt].val>>sa,arch);
+
+	/* gestion des autres drapeaux */
+	FlagSetting(rd,arch);
 }
 
 void execute_sub(int word, mips* arch)
@@ -651,12 +734,20 @@ void execute_sub(int word, mips* arch)
 	temp=(int64_t)arch->reg[rs].val-(int64_t)arch->reg[rt].val;
 	
 	/* test de l'overflow */
-	if(temp!=(int32_t)temp){
+	if(temp!=(int32_t)temp)
+	{
 		SignalException("Integer Overflow",arch);
-		setRegister(35,arch->reg[35].val|0x400,arch);
-		}
+		setRegister(35,arch->reg[35].val|0x800,arch);
+	}
 
-	else{setRegister(rd,(int32_t)temp,arch);}
+	else
+	{
+		setRegister(rd,(int32_t)temp,arch);
+	}
+
+	/* gestion des autres drapeaux */
+	FlagSetting(temp,arch);
+
 }
 
 void execute_sw(int word, mips* arch)
@@ -675,43 +766,44 @@ void execute_sw(int word, mips* arch)
 	fprintf(stdout,"0x%08x:\tSW\t$%s\t0x%x($%s)\n",arch->reg[32].val,arch->reg[rt].mnemo,offset,arch->reg[base].mnemo);
 
 	/* exécution de l'instruction */
-	if((arch->reg[base].val+offset)%4!=0){
+	if((arch->reg[base].val+offset)%4!=0)
+	{
 		SignalException("Address Error",arch);
-		}
-	else{
+	}
+
+	else
+	{
 		int tm=0;
 		unsigned int addr_in_block;
 		tm=test_memoire(arch,arch->reg[base].val+offset,&addr_in_block);
 	
-		switch(tm){
-		
-		case -1:
-		WARNING_MSG("This address is not allocated for the simulator");
-		break;
+		switch(tm)
+		{
+			case -1:
+			WARNING_MSG("This address is not allocated for the simulator");
+			break;
 	
-		case BSS:
-		arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress]=(arch->reg[rt].val)>>8;
-		arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
-		break;
+			case BSS:
+			arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress]=(arch->reg[rt].val)>>8;
+			arch->segment[BSS].data[arch->reg[base].val+offset-arch->segment[BSS].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
+			break;
 
-		case TEXT:
-		arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress]=(arch->reg[rt].val)>>8;
-		arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
-		break;
+			case TEXT:
+			arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress]=(arch->reg[rt].val)>>8;
+			arch->segment[TEXT].data[arch->reg[base].val+offset-arch->segment[TEXT].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
+			break;
 		
-		case DATA:
-		arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress]=(arch->reg[rt].val)>>8;
-		arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
-		break;
+			case DATA:
+			arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress]=(arch->reg[rt].val)>>8;
+			arch->segment[DATA].data[arch->reg[base].val+offset-arch->segment[DATA].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
+			break;
 
-		case STACK:
-		arch->segment[STACK].data[arch->reg[base].val+offset-arch->segment[STACK].startAddress]=(arch->reg[rt].val)>>8;
-		arch->segment[STACK].data[arch->reg[base].val+offset-arch->segment[STACK].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
-		break;
-
-			}
-
+			case STACK:
+			arch->segment[STACK].data[arch->reg[base].val+offset-arch->segment[STACK].startAddress]=(arch->reg[rt].val)>>8;
+			arch->segment[STACK].data[arch->reg[base].val+offset-arch->segment[STACK].startAddress+1]=((arch->reg[rt].val)<<8)>>8;
+			break;
 		}
+	}
 }
 
 void execute_syscall(int word, mips* arch)
@@ -744,6 +836,9 @@ void execute_xor(int word, mips* arch)
 
 	/* exécution de l'instruction */
 	setRegister(rd,arch->reg[rt].val|arch->reg[rs].val,arch);
+
+	/* gestion des drapeaux */
+	FlagSetting(rd,arch);
 }
 
 void no_execute(int word, mips* arch)
@@ -776,6 +871,7 @@ void init_functionTab(mips* arch,executor executor_t[128])
 	executor_t[24]=execute_mult;
 	executor_t[26]=execute_div;
 	executor_t[32]=execute_add;
+	executor_t[34]=execute_sub;
 	executor_t[36]=execute_and;
 	executor_t[37]=execute_or;
 	executor_t[38]=execute_xor;

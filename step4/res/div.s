@@ -1,13 +1,10 @@
-## Test de div
- 
-.text
-div $t0, $t9		# divise $8 par $24
-div $t0, $t0 		# divise $8 par $8
-nop
+.set noreorder
 
-.bss
-Tab: 
-.space 12 			# réserve 12 octets en mémoire, 
-					# par exemple pour stocker un tableau de 3 entiers
- 
-## The end
+addi $t1,$zero,2
+addi $t2,$zero,4
+mult $t2,$t1
+div $t2,$t1
+mfhi $t3
+mflo $t4
+lw $t5,0x28($zero) # recuperer le code de MFHI
+sw $zero,0($zero) #ecrase la premiere instruction avec un NOP
